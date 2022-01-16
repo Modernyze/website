@@ -18,28 +18,30 @@ public class UserController : Controller {
     }
     
     // GET: Register
-    public Task<IActionResult> Register() {
+    public ActionResult Register() {
         return View();
     }
 
     // POST: Register
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public Task<IActionResult> Register(UserAccount user) {
-
+    public ActionResult Register(UserAccount user) {
         return View();
     }
 
-    public Task<IActionResult> Login() {
+    // GET: Login
+    public ActionResult Login() {
         return View();
     }
 
+    // POST: Login
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public Task<IActionResult> Login(string email, string password) {
+    public ActionResult Login(string email, string password) {
         return View();
     }
 
+    // GET: Logout
     public ActionResult Logout() {
         this.HttpContext.Session.Clear();
         return RedirectToAction("Index");

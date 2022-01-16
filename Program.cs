@@ -33,6 +33,8 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseSession();
+
 app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}");
