@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  modernyzewebsite:
+    container_name: "Website"
+    image: ${DOCKER_REGISTRY-}modernyzewebsite
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+  db:
+    container_name: "modernyzeSQL"
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    environment:
+        SA_PASSWORD: "SeniorProject2022"
+        ACCEPT_EULA: "Y"
