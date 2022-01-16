@@ -1,0 +1,21 @@
+﻿@model IEnumerable<ModernyzeWebsite.Models.TimeLog>
+
+@{
+    ViewData["Title"] = "Time Logging";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post))
+        {
+            <input type="submit" class="btn btn-primary" value="Punch In"/>
+        }
+    </div>
+    <div class="col-md-4">
+        @using (Html.BeginForm("PunchOut", "TimeLog", FormMethod.Post))
+        {
+            <input type="submit" class="btn btn-primary" value="Punch Out"/>
+        }
+    </div>
+</div>

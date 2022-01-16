@@ -10,4 +10,6 @@ public class ModernyzeWebsiteContext : DbContext {
     public DbSet<UserAccount> UserAccount { get; set; }
 
     public DbSet<UserPermission> UserPermission { get; set; }
+
+    public DbSet<TimeLog> TimeLog { get; set; }
 }
