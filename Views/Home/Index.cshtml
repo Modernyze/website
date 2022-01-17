@@ -5,7 +5,8 @@
 }
 
 <div class="text-center">
-    <h2 class="display-4">Time Logged this Week</h2>
+    <h2 class="display-4">Time Logged by Week</h2>
+    <input id="weekSelect" type="week" min="2022-W2">
     <table class="table">
         <thead>
         <tr>
@@ -31,3 +32,24 @@
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const weekSelector = $('#weekSelect');
+
+            weekSelector.on('change',
+                function() {
+                    const year = weekSelector.val().split('-')[0];
+                    const week = weekSelector.val().split('-')[1].slice(1);
+                    $.ajax({
+                        type: "GET",
+                        url: `Home/UpdateTimeLogged?year=${year}&week=${week}`,
+                        success: function(data) {
+                            $(".text-center").html(data);
+                        }
+                    });
+                });
+        });
+    </script>
+    }
