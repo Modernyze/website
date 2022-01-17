@@ -66,7 +66,7 @@ public class UserController : Controller {
 
         UserAccount existing = this.db.UserAccount.FirstOrDefault(s => s.Email == user.Email);
         if (existing != null) {
-            this.ViewBag.error = "Email is already in use.";
+            this.ViewBag.ErrorMessage = "Email is already in use.";
             return View();
         }
 
@@ -97,7 +97,7 @@ public class UserController : Controller {
                                user.Password == passwordAttempt)
                 .ToList();
         if (accounts.Count == 0) {
-            this.ViewBag.error = "Login failed";
+            this.ViewBag.ErrorMessage = "Login failed";
             return RedirectToAction("Login");
         }
 
@@ -107,6 +107,11 @@ public class UserController : Controller {
                        orderby p.Id
                        where up.UserId == currentUser.Id
                        select p.Name).First();
+        // If the user is unverified, don't log them in.
+        if (role == UNVERIFIED) {
+            this.ViewBag.ErrorMessage = "Your account has not been verified. You won't be able to log in until it is.";
+            return RedirectToAction("Index");
+        }
         this.HttpContext.Session.SetString("FullName", currentUser.FullName);
         this.HttpContext.Session.SetString("HighestPermission", role);
         this.HttpContext.Session.SetString("UserId", currentUser.Id.ToString());
@@ -114,6 +119,10 @@ public class UserController : Controller {
     }
 
     // POST: Verify
+    /// <summary>
+    /// Make an unverified user a registered user. This gives them the ability to login.
+    /// </summary>
+    /// <param name="userID">The UserId associated with this user.</param>
     [HttpPost]
     public ActionResult Verify(int userID) {
         // try to get unverified record from database for this user
@@ -132,6 +141,10 @@ public class UserController : Controller {
     }
 
     // POST: MakeAdmin
+    /// <summary>
+    /// Make a registered user an admin. This gives them administrator privileges.
+    /// </summary>
+    /// <param name="userID">The UserId associated with this user.</param>
     [HttpPost]
     public ActionResult MakeAdmin(int userID) {
         // try to get the registered record from database for this user

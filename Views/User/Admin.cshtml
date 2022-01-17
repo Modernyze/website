@@ -26,7 +26,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (UserAccount item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Username)
@@ -41,8 +41,14 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                <a class="btn btn-success" asp-action="Verify" asp-route-id="@item.Id">Verify User</a> |
-                <a class="btn btn-warning" asp-action="MakeAdmin" asp-route-id="@item.Id">Make Administrator</a>
+                @using (Html.BeginForm("Verify", "User", FormMethod.Post)) {
+                    @Html.Hidden("userID", item.Id)
+                    <input type="submit" class="btn btn-success" value="Verify"/>
+                }
+                @using (Html.BeginForm("MakeAdmin", "User", FormMethod.Post)) {
+                    @Html.Hidden("userID", item.Id)
+                    <input type="submit" class="btn btn-warning" value="Make Administrator"/>
+                }
             </td>
         </tr>
 }

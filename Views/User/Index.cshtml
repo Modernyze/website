@@ -4,3 +4,9 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<div class="container">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
+        <span class="bg-danger">@ViewBag.ErrorMessage</span>
+    }
+</div>
