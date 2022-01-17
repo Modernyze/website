@@ -1,24 +1,33 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models;
 
-namespace ModernyzeWebsite.Controllers; 
+namespace ModernyzeWebsite.Controllers;
 
 public class UserController : Controller {
-    private readonly ModernyzeWebsiteContext db;
-
     public UserController(ModernyzeWebsiteContext context) {
         this.db = context;
     }
+
+    #region Member Variables
+
+    private const string ADMIN = "Administrator";
+    private const string REGISTERED = "Registered User";
+    private const string UNVERIFIED = "Unverified";
+
+    private readonly ModernyzeWebsiteContext db;
+
+    #endregion
+
+    #region Endpoint Methods
 
     // GET: User
     public ActionResult Index() {
         return View();
     }
-    
+
     // GET: Register
     public ActionResult Register() {
         return View();
@@ -41,8 +50,9 @@ public class UserController : Controller {
         user.Password = GetMD5(user.Password);
         this.db.UserAccount.Add(user);
         await this.db.SaveChangesAsync();
+        int unverified = GetPermissionsID(UNVERIFIED);
         this.db.UserPermission.Add(new UserPermission {
-            PermissionId = 2,
+            PermissionId = unverified,
             UserId = user.Id
         });
         await this.db.SaveChangesAsync();
@@ -65,7 +75,7 @@ public class UserController : Controller {
         string passwordAttempt = GetMD5(password);
         List<UserAccount> accounts =
             this.db.UserAccount
-                .Where(user => user.Email.Equals(email) && 
+                .Where(user => user.Email.Equals(email) &&
                                user.Password == passwordAttempt)
                 .ToList();
         if (accounts.Count == 0) {
@@ -74,7 +84,7 @@ public class UserController : Controller {
         }
 
         UserAccount currentUser = accounts.FirstOrDefault();
-        this.HttpContext.Session.SetString("FullName", currentUser.FirstName + " " + currentUser.LastName);
+        this.HttpContext.Session.SetString("FullName", currentUser.FullName);
         this.HttpContext.Session.SetString("UserId", currentUser.Id.ToString());
         return RedirectToAction("Index");
     }
@@ -85,8 +95,12 @@ public class UserController : Controller {
         return RedirectToAction("Index");
     }
 
+    #endregion
+
+    #region Private Helper Functions
+
     /// <summary>
-    /// Hash a string using the MD5 algorithm.
+    ///     Hash a string using the MD5 algorithm.
     /// </summary>
     /// <param name="str">The string to hash</param>
     /// <returns>The hashed string</returns>
@@ -102,4 +116,16 @@ public class UserController : Controller {
 
         return byte2string;
     }
+
+    /// <summary>
+    ///     Get the Permissions ID given a permission Name. This method does not
+    ///     check if the permission name exists before trying to retrieve it.
+    /// </summary>
+    /// <param name="permissionName">The name of the permission</param>
+    /// <returns>The primary key for the permission searched for.</returns>
+    private int GetPermissionsID(string permissionName) {
+        return this.db.Permissions.Where(p => p.Name == permissionName).FirstOrDefault().Id;
+    }
+
+    #endregion
 }
