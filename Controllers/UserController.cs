@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models;
 
@@ -31,6 +32,11 @@ public class UserController : Controller {
     // GET: Register
     public ActionResult Register() {
         return View();
+    }
+
+    // GET: Admin User Panel
+    public async Task<IActionResult> Admin() {
+        return View(await this.db.UserAccount.ToListAsync());
     }
 
     // POST: Register
@@ -83,8 +89,14 @@ public class UserController : Controller {
             return RedirectToAction("Login");
         }
 
-        UserAccount currentUser = accounts.FirstOrDefault();
+        UserAccount currentUser = accounts.First();
+        string role = (from up in this.db.UserPermission
+                       join p in this.db.Permissions on up.PermissionId equals p.Id
+                       orderby p.Id
+                       where up.UserId == currentUser.Id
+                       select p.Name).First();
         this.HttpContext.Session.SetString("FullName", currentUser.FullName);
+        this.HttpContext.Session.SetString("HighestPermission", role);
         this.HttpContext.Session.SetString("UserId", currentUser.Id.ToString());
         return RedirectToAction("Index");
     }
@@ -124,7 +136,7 @@ public class UserController : Controller {
     /// <param name="permissionName">The name of the permission</param>
     /// <returns>The primary key for the permission searched for.</returns>
     private int GetPermissionsID(string permissionName) {
-        return this.db.Permissions.Where(p => p.Name == permissionName).FirstOrDefault().Id;
+        return this.db.Permissions.Where(p => p.Name == permissionName).First().Id;
     }
 
     #endregion
