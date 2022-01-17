@@ -1,8 +1,33 @@
-﻿@{
+﻿@model IEnumerable<ModernyzeWebsite.Models.TimeLogViewModel>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h2 class="display-4">Time Logged this Week</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Time Logged
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (TimeLogViewModel item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReadableTimeLogged)
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
 </div>
