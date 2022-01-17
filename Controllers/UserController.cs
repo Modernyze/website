@@ -24,6 +24,8 @@ public class UserController : Controller {
 
     #region Endpoint Methods
 
+    #region GET Methods
+
     // GET: User
     public ActionResult Index() {
         return View();
@@ -38,6 +40,21 @@ public class UserController : Controller {
     public async Task<IActionResult> Admin() {
         return View(await this.db.UserAccount.ToListAsync());
     }
+
+    // GET: Login
+    public ActionResult Login() {
+        return View();
+    }
+
+    // GET: Logout
+    public ActionResult Logout() {
+        this.HttpContext.Session.Clear();
+        return RedirectToAction("Index");
+    }
+
+    #endregion
+
+    #region POST Methods
 
     // POST: Register
     [HttpPost]
@@ -63,11 +80,6 @@ public class UserController : Controller {
         });
         await this.db.SaveChangesAsync();
         return RedirectToAction("Index");
-    }
-
-    // GET: Login
-    public ActionResult Login() {
-        return View();
     }
 
     // POST: Login
@@ -101,11 +113,43 @@ public class UserController : Controller {
         return RedirectToAction("Index");
     }
 
-    // GET: Logout
-    public ActionResult Logout() {
-        this.HttpContext.Session.Clear();
-        return RedirectToAction("Index");
+    // POST: Verify
+    [HttpPost]
+    public ActionResult Verify(int userID) {
+        // try to get unverified record from database for this user
+        UserPermission unverified = GetUnverifiedRecord(userID);
+        if (unverified == null) {
+            // this user isn't unverified.
+            return RedirectToAction("Admin");
+        }
+
+        // If we get here, we found an unverified record for this user.
+        unverified.PermissionId = GetPermissionsID(REGISTERED);
+        // Update the record with the new permission ID
+        this.db.UserPermission.Update(unverified);
+        this.db.SaveChanges();
+        return RedirectToAction("Admin");
     }
+
+    // POST: MakeAdmin
+    [HttpPost]
+    public ActionResult MakeAdmin(int userID) {
+        // try to get the registered record from database for this user
+        UserPermission registered = GetRegisteredRecord(userID);
+        if (registered == null) {
+            // this user doesn't have a registered record.
+            return RedirectToAction("Admin");
+        }
+
+        // If we get here, we found that this user has the registered role.
+        registered.PermissionId = GetPermissionsID(ADMIN);
+        // Update the record with the new permission ID
+        this.db.UserPermission.Update(registered);
+        this.db.SaveChanges();
+        return RedirectToAction("Admin");
+    }
+
+    #endregion
 
     #endregion
 
@@ -137,6 +181,30 @@ public class UserController : Controller {
     /// <returns>The primary key for the permission searched for.</returns>
     private int GetPermissionsID(string permissionName) {
         return this.db.Permissions.Where(p => p.Name == permissionName).First().Id;
+    }
+
+    /// <summary>
+    /// Try to get the "unverified" user permission record for a given user.
+    /// </summary>
+    /// <param name="userID">The UserId for the given user.</param>
+    /// <returns>A UserPermission object if found, otherwise this method returns null.</returns>
+    private UserPermission? GetUnverifiedRecord(int userID) {
+        int unverifiedID = GetPermissionsID(UNVERIFIED);
+        return this.db.UserPermission
+                   .Where(up => up.PermissionId == unverifiedID && up.UserId == userID)
+                   .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Try to get the "registered" user permission record for a given user.
+    /// </summary>
+    /// <param name="userID">The UserId for the given user.</param>
+    /// <returns>A UserPermission object if found, otherwise this method returns null.</returns>
+    private UserPermission? GetRegisteredRecord(int userID) {
+        int registeredID = GetPermissionsID(REGISTERED);
+        return this.db.UserPermission
+                   .Where(up => up.PermissionId == registeredID && up.UserId == userID)
+                   .FirstOrDefault();
     }
 
     #endregion
