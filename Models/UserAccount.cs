@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ModernyzeWebsite.Models; 
+namespace ModernyzeWebsite.Models;
 
 public class UserAccount {
     [Key] public int Id { get; set; }
@@ -17,4 +18,14 @@ public class UserAccount {
     public string Email { get; set; }
 
     [Required] [StringLength(50)] public string Password { get; set; }
+
+    [NotMapped]
+    [Required]
+    [Compare("Password")]
+    public string ConfirmPassword { get; set; }
+
+    [NotMapped]
+    public string FullName {
+        get { return this.FirstName + " " + this.LastName; }
+    }
 }

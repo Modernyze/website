@@ -32,10 +32,11 @@
                     <!-- Only place nav items beyond this point if they are used by a logged in user. -->
                     @if (!string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="TimeLog" asp-action="Index">Time Logging</a>
+                        </li>
+                        <!-- The Logout link should remain last in the list. This will keep the link farthest to the right on the web page. -->
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
                         </li>
                     }
                 </ul>
