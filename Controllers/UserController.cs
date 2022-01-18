@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
@@ -37,8 +38,20 @@ public class UserController : Controller {
     }
 
     // GET: Admin User Panel
-    public async Task<IActionResult> Admin() {
-        return View(await this.db.UserAccount.ToListAsync());
+    public ActionResult Admin() {
+         List<AdminViewModel> list = (from ua in this.db.UserAccount
+         join up in this.db.UserPermission on ua.Id equals up.UserId
+         join p in this.db.Permissions on up.PermissionId equals p.Id
+         select new AdminViewModel {
+             UserId = ua.Id,
+             Username = ua.Username,
+             FirstName = ua.FirstName,
+             LastName = ua.LastName,
+             Email = ua.Email,
+             NotVerified = p.Name.Equals(UNVERIFIED),
+             IsAdmin = p.Name.Equals(ADMIN)
+         }).ToList();
+        return View(list);
     }
 
     // GET: Login
