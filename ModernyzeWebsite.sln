@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModernyzeWebsite", "ModernyzeWebsite.csproj", "{E1193583-09B4-46F4-9DE8-FA11997FF40A}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "ModernyzeDB", "Database\ModernyzeDB\ModernyzeDB.sqlproj", "{C7B136A8-271E-4776-B5C0-E7E53A94CF02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,12 @@ Global
 		{E1193583-09B4-46F4-9DE8-FA11997FF40A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1193583-09B4-46F4-9DE8-FA11997FF40A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1193583-09B4-46F4-9DE8-FA11997FF40A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7B136A8-271E-4776-B5C0-E7E53A94CF02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7B136A8-271E-4776-B5C0-E7E53A94CF02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7B136A8-271E-4776-B5C0-E7E53A94CF02}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{C7B136A8-271E-4776-B5C0-E7E53A94CF02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7B136A8-271E-4776-B5C0-E7E53A94CF02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7B136A8-271E-4776-B5C0-E7E53A94CF02}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
