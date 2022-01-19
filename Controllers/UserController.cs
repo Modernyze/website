@@ -109,7 +109,7 @@ public class UserController : Controller {
                 .ToList();
         if (accounts.Count == 0) {
             this.ViewBag.ErrorMessage = "Login failed";
-            return RedirectToAction("Login");
+            return View();
         }
 
         UserAccount currentUser = accounts.First();
@@ -121,7 +121,7 @@ public class UserController : Controller {
         // If the user is unverified, don't log them in.
         if (role == UNVERIFIED) {
             this.ViewBag.ErrorMessage = "Your account has not been verified. You won't be able to log in until it is.";
-            return RedirectToAction("Login");
+            return View();
         }
 
         this.HttpContext.Session.SetString("FullName", currentUser.FullName);
