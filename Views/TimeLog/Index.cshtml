@@ -1,21 +1,98 @@
-﻿@model IEnumerable<ModernyzeWebsite.Models.TimeLog>
-
-@{
+﻿@{
     ViewData["Title"] = "Time Logging";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="row">
-    <div class="col-md-4">
-        @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post))
-        {
-            <input type="submit" class="btn btn-primary" value="Punch In"/>
-        }
+    <div class="card">
+        <div class="card-header">
+            Punch In / Punch Out
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post, new {@class = "row"})) {
+                <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch In"/>
+            }
+            <br/>
+            @using (Html.BeginForm("PunchOut", "TimeLog", FormMethod.Post, new {@class = "row"})) {
+                <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch Out"/>
+            }
+        </div>
+        <div class="card-footer"></div>
     </div>
-    <div class="col-md-4">
-        @using (Html.BeginForm("PunchOut", "TimeLog", FormMethod.Post))
-        {
-            <input type="submit" class="btn btn-primary" value="Punch Out"/>
-        }
+    <div class="card">
+        <div class="card-header">
+            Record Meeting
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm("", "TimeLog", FormMethod.Post, new {@class = "row"})) {
+                <div class="form-group">
+                    <input type="number" id="hoursInput" class="col-sm-1" min="0" max="5" placeholder="0"/>
+                    <label for="hoursInput" class="col-sm-1">Hours</label>
+                    <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="minutesInput" class="col-sm-1" min="0" max="59" placeholder="0"/>
+                    <label for="minutesInput" class="col-sm-1">Minutes</label>
+                    <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                </div>
+            }
+        </div>
+        <div class="card-footer"></div>
     </div>
 </div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const $submitBtn = $('#meetingBtn');
+
+            const $hoursInput = $('#hoursInput');
+            const $hoursWarning = $('#hoursWarning');
+            const maxHours = 5;
+
+            const $minutesInput = $('#minutesInput');
+            const $minutesWarning = $('#minutesWarning');
+            const maxMinutes = 59;
+            
+            // Try to keep the user input within range.
+            $hoursInput.on('change',
+                function() {
+                    if ($hoursInput.val() > maxHours) {
+                        $hoursWarning.removeClass('hidden');
+                    }
+                    else if ($hoursInput.val() < 0) {
+                        $hoursWarning.removeClass('hidden');
+                    }
+                    else {
+                        $hoursWarning.addClass('hidden');
+                    }
+                });
+
+            $minutesInput.on('change',
+                function() {
+                    if ($minutesInput.val() > maxMinutes) {
+                        $minutesWarning.removeClass('hidden');
+                    } else if ($minutesInput.val() < 0) {
+                        $minutesWarning.removeClass('hidden');
+                    } 
+                    else {
+                        $minutesWarning.addClass('hidden');
+                    }
+                });
+
+            $submitBtn.on('click',
+                function(e) {
+                    const hours = $hoursInput.val();
+                    const minutes = $minutesInput.val();
+                    // If the values are out of range, don't submit the form.
+                    if (hours > maxHours || minutes > maxMinutes ||
+                        hours < 0 || minutes < 0) {
+                        e.preventDefault();
+                    }
+                });
+        });
+    </script>
+}
