@@ -9,3 +9,7 @@ appsettings.json
 *.dbmdl
 
 *.jfm
+
+appsettings.Development.json
+
+appsettings.Production.json
