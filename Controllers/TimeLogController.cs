@@ -44,6 +44,35 @@ public class TimeLogController : Controller {
         return RedirectToAction("Index");
     }
 
+    // POST: Record Meeting
+    [HttpPost]
+    public async Task<IActionResult> RecordMeeting(int hours, int minutes) {
+        int userID = 0;
+        try {
+            userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
+        }
+        catch (ArgumentNullException) {
+            return Json(new {success = false, responseText = "You must be logged in to record time!"});
+        }
+
+        DateTime now = DateTime.Now;
+        DateTime start = now.Subtract(new TimeSpan(hours, minutes, 0));
+        TimeLog meeting = new() {
+            UserId = userID,
+            PunchInTime = start,
+            PunchOutTime = now
+        };
+        await this.db.TimeLog.AddAsync(meeting);
+        Task<int> save = this.db.SaveChangesAsync();
+        save.Wait();
+        // We only expect one record to be created.
+        // If this is not true, tell the user there was an error.
+        return Json(new {
+            success = save.Result == 1,
+            responseText = save.Result == 1 ? "Success" : "There was a problem recording the meeting."
+        });
+    }
+
     private UserAccount GetUserAccountByID(int userID) {
         return this.db.UserAccount.Where(u => u.Id == userID).FirstOrDefault();
     }
