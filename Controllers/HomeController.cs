@@ -3,6 +3,8 @@ using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models;
+using ModernyzeWebsite.Models.TimeLog;
+using ModernyzeWebsite.Models.User;
 
 namespace ModernyzeWebsite.Controllers;
 

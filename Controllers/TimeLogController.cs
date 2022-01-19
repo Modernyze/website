@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
-using ModernyzeWebsite.Models;
+using ModernyzeWebsite.Models.TimeLog;
+using ModernyzeWebsite.Models.User;
 
-namespace ModernyzeWebsite.Controllers; 
+namespace ModernyzeWebsite.Controllers;
 
 public class TimeLogController : Controller {
     private readonly ModernyzeWebsiteContext db;

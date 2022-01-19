@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Models;
+using ModernyzeWebsite.Models.TimeLog;
+using ModernyzeWebsite.Models.User;
 
 namespace ModernyzeWebsite.Data;
 

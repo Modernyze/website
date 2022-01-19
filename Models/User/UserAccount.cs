@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ModernyzeWebsite.Models;
+namespace ModernyzeWebsite.Models.User;
 
 public class UserAccount {
     [Key] public int Id { get; set; }

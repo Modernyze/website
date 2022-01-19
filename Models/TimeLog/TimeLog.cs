@@ -1,4 +1,4 @@
-﻿namespace ModernyzeWebsite.Models; 
+﻿namespace ModernyzeWebsite.Models.TimeLog; 
 
 public class TimeLog {
     public int Id { get; set; }
