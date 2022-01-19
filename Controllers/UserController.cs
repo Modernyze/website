@@ -60,7 +60,7 @@ public class UserController : Controller {
     // GET: Logout
     public ActionResult Logout() {
         this.HttpContext.Session.Clear();
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Home");
     }
 
     #endregion
@@ -90,7 +90,7 @@ public class UserController : Controller {
             UserId = user.Id
         });
         await this.db.SaveChangesAsync();
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Home");
     }
 
     // POST: Login
@@ -121,13 +121,13 @@ public class UserController : Controller {
         // If the user is unverified, don't log them in.
         if (role == UNVERIFIED) {
             this.ViewBag.ErrorMessage = "Your account has not been verified. You won't be able to log in until it is.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Login");
         }
 
         this.HttpContext.Session.SetString("FullName", currentUser.FullName);
         this.HttpContext.Session.SetString("HighestPermission", role);
         this.HttpContext.Session.SetString("UserId", currentUser.Id.ToString());
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Home");
     }
 
     // POST: Verify
