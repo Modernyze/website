@@ -162,7 +162,7 @@ public class TimeLogController : Controller {
     }
 
     private static TimeSpan GetTimeDifference(DateTime start, DateTime end) {
-        if (end == null) {
+        if (end == DateTime.MinValue) {
             return new TimeSpan();
         }
 
