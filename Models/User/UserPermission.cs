@@ -1,4 +1,4 @@
-﻿namespace ModernyzeWebsite.Models; 
+﻿namespace ModernyzeWebsite.Models.User; 
 
 public class UserPermission {
     public int Id { get; set; }

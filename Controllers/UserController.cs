@@ -1,9 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
-using ModernyzeWebsite.Models;
+using ModernyzeWebsite.Models.User;
 
 namespace ModernyzeWebsite.Controllers;
 
@@ -37,8 +36,20 @@ public class UserController : Controller {
     }
 
     // GET: Admin User Panel
-    public async Task<IActionResult> Admin() {
-        return View(await this.db.UserAccount.ToListAsync());
+    public ActionResult Admin() {
+        List<AdminViewModel> list = (from ua in this.db.UserAccount
+                                     join up in this.db.UserPermission on ua.Id equals up.UserId
+                                     join p in this.db.Permissions on up.PermissionId equals p.Id
+                                     select new AdminViewModel {
+                                         UserId = ua.Id,
+                                         Username = ua.Username,
+                                         FirstName = ua.FirstName,
+                                         LastName = ua.LastName,
+                                         Email = ua.Email,
+                                         NotVerified = p.Name.Equals(UNVERIFIED),
+                                         IsAdmin = p.Name.Equals(ADMIN)
+                                     }).ToList();
+        return View(list);
     }
 
     // GET: Login
@@ -112,6 +123,7 @@ public class UserController : Controller {
             this.ViewBag.ErrorMessage = "Your account has not been verified. You won't be able to log in until it is.";
             return RedirectToAction("Index");
         }
+
         this.HttpContext.Session.SetString("FullName", currentUser.FullName);
         this.HttpContext.Session.SetString("HighestPermission", role);
         this.HttpContext.Session.SetString("UserId", currentUser.Id.ToString());
@@ -120,7 +132,7 @@ public class UserController : Controller {
 
     // POST: Verify
     /// <summary>
-    /// Make an unverified user a registered user. This gives them the ability to login.
+    ///     Make an unverified user a registered user. This gives them the ability to login.
     /// </summary>
     /// <param name="userID">The UserId associated with this user.</param>
     [HttpPost]
@@ -142,7 +154,7 @@ public class UserController : Controller {
 
     // POST: MakeAdmin
     /// <summary>
-    /// Make a registered user an admin. This gives them administrator privileges.
+    ///     Make a registered user an admin. This gives them administrator privileges.
     /// </summary>
     /// <param name="userID">The UserId associated with this user.</param>
     [HttpPost]
@@ -197,7 +209,7 @@ public class UserController : Controller {
     }
 
     /// <summary>
-    /// Try to get the "unverified" user permission record for a given user.
+    ///     Try to get the "unverified" user permission record for a given user.
     /// </summary>
     /// <param name="userID">The UserId for the given user.</param>
     /// <returns>A UserPermission object if found, otherwise this method returns null.</returns>
@@ -209,7 +221,7 @@ public class UserController : Controller {
     }
 
     /// <summary>
-    /// Try to get the "registered" user permission record for a given user.
+    ///     Try to get the "registered" user permission record for a given user.
     /// </summary>
     /// <param name="userID">The UserId for the given user.</param>
     /// <returns>A UserPermission object if found, otherwise this method returns null.</returns>

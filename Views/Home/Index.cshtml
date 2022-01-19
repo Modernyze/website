@@ -1,8 +1,70 @@
-﻿@{
+﻿@using ModernyzeWebsite.Models.TimeLog
+@model IEnumerable<ModernyzeWebsite.Models.TimeLog.TimeLogViewModel>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h2 class="display-4">Time Logged this Week</h2>
+    <input id="weekSelect" type="week" min="2022-W2">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Time Logged
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (TimeLogViewModel item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReadableTimeLogged)
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
 </div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const $weekSelector = $('#weekSelect');
+            const $table = $('.table');
+
+            // When a change is made in the week selector, update the table to show the new data.
+            $weekSelector.on('change',
+                function() {
+                    // Update the title
+                    const $title = $('.display-4');
+                    $title.text("Time Logged by Week");
+
+                    const year = $weekSelector.val().split('-')[0];
+                    const week = $weekSelector.val().split('-')[1].slice(1);
+                    
+                    // Make an AJAX call to the UpdateTimeLogged action in the HomeController.
+                    // Pass the parameters 'year' and 'week' as query string parameters.
+                    $.ajax({
+                        type: "GET",
+                        url: `Home/UpdateTimeLogged?year=${year}&week=${week}`,
+                        dataType: "html",
+                        // if the AJAX call was successful, extract the table element from the AJAX return data, 
+                        // then replace the inner html of the table on this page with the inner html of the table
+                        // returned by the AJAX call.
+                        success: function(data) {
+                            body = $(data).children('.table');
+                            $table.html(body.html());
+                        }
+                    });
+                });
+        });
+    </script>
+    }

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ModernyzeWebsite.Models.UserAccount>
+﻿@using ModernyzeWebsite.Models.User
+@model IEnumerable<ModernyzeWebsite.Models.User.AdminViewModel>
 
 @{
     ViewData["Title"] = "Admin";
@@ -14,40 +15,46 @@
                 @Html.DisplayNameFor(model => model.Username)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FirstName)
+                First Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LastName)
+                Last Name
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
-            <th>Actions</th>
+            <th>
+                Actions
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (UserAccount item in Model) {
+@foreach (AdminViewModel user in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Username)
+                @Html.DisplayFor(modelItem => user.Username)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
+                @Html.DisplayFor(modelItem => user.FirstName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LastName)
+                @Html.DisplayFor(modelItem => user.LastName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Email)
+                @Html.DisplayFor(modelItem => user.Email)
             </td>
             <td>
-                @using (Html.BeginForm("Verify", "User", FormMethod.Post)) {
-                    @Html.Hidden("userID", item.Id)
-                    <input type="submit" class="btn btn-success" value="Verify"/>
+                @if (!user.IsAdmin) {
+                    @using (Html.BeginForm("MakeAdmin", "User", FormMethod.Post)) {
+                        @Html.Hidden("userID", user.UserId)
+                        <input type="submit" class="btn btn-warning" value="Make Administrator"/>
+                    }
                 }
-                @using (Html.BeginForm("MakeAdmin", "User", FormMethod.Post)) {
-                    @Html.Hidden("userID", item.Id)
-                    <input type="submit" class="btn btn-warning" value="Make Administrator"/>
+                @if (user.NotVerified) {
+                    @using (Html.BeginForm("Verify", "User", FormMethod.Post)) {
+                        @Html.Hidden("userID", user.UserId)
+                        <input type="submit" class="btn btn-success" value="Verify"/>
+                    }
                 }
             </td>
         </tr>
