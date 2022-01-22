@@ -9,6 +9,11 @@
             Punch In / Punch Out
         </div>
         <div class="card-body">
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
+                <div class="bg-danger">
+                    <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
+                </div>
+            }
             @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post, new {@class = "row"})) {
                 <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch In"/>
             }

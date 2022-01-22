@@ -29,40 +29,83 @@ public class TimeLogController : Controller {
 
     // POST: Punch In
     [HttpPost]
-    public IActionResult PunchIn() {
+    public async Task<IActionResult> PunchIn() {
+        // If the session doesn't contain a UserId variable, the current user isn't logged in.
+        if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
+            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
+            return View("Index");
+        }
+
         int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
         UserAccount user = GetUserAccountByID(userID);
+        // If we don't have an account for a given ID, there was a database
+        // error or the current user was able to inject the UserId variable.
+        if (user == null) {
+            this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
+            return View("Index");
+        }
+
         this.db.TimeLog.Add(new TimeLog {
             UserId = userID,
             PunchInTime = DateTime.Now,
             PunchOutTime = null
         });
-        this.db.SaveChanges();
-        return RedirectToAction("Index");
+        Task<int> save = this.db.SaveChangesAsync();
+        save.Wait();
+        int recordsAffected = save.Result;
+        if (recordsAffected != 1) {
+            this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
+        }
+        return View("Index");
     }
 
     // POST: Punch Out
     [HttpPost]
-    public IActionResult PunchOut() {
+    public async Task<IActionResult> PunchOut() {
+        // If the session doesn't contain a UserId variable, the current user isn't logged in.
+        if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
+            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
+            return View("Index");
+        }
+
         int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
         UserAccount user = GetUserAccountByID(userID);
-        TimeLog mostRecent = this.db.TimeLog.OrderByDescending(t => t.PunchInTime).Where(t => t.UserId == user.Id)
-                                 .FirstOrDefault();
+        // If we don't have an account for a given ID, there was a database
+        // error or the current user was able to inject the UserId variable.
+        if (user == null) {
+            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
+            return View("Index");
+        }
+
+        TimeLog mostRecent;
+        try {
+            mostRecent = this.db.TimeLog.OrderByDescending(t => t.PunchInTime).First(t => t.UserId == user.Id);
+        }
+        catch (Exception) {
+            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
+            return View("Index");
+        }
+
         mostRecent.PunchOutTime = DateTime.Now;
-        this.db.SaveChanges();
-        return RedirectToAction("Index");
+        Task<int> save = this.db.SaveChangesAsync();
+        save.Wait();
+        int recordsAffected = save.Result;
+        if (recordsAffected != 1) {
+            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
+        }
+        return View("Index");
     }
 
     // POST: Record Meeting
     [HttpPost]
     public async Task<IActionResult> RecordMeeting(int hours, int minutes) {
-        int userID = 0;
-        try {
-            userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
-        }
-        catch (ArgumentNullException) {
+        // If the session doesn't contain a UserId variable, the current user isn't logged in.
+        if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
+            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
             return Json(new {success = false, responseText = "You must be logged in to record time!"});
         }
+
+        int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
 
         DateTime now = DateTime.Now;
         DateTime start = now.Subtract(new TimeSpan(hours, minutes, 0));
@@ -87,9 +130,9 @@ public class TimeLogController : Controller {
     #endregion
 
     #region AJAX Methods
-    
+
     /// <summary>
-    /// Get the table of TimeLogs grouped by user for the week containing the selected date.
+    ///     Get the table of TimeLogs grouped by user for the week containing the selected date.
     /// </summary>
     public IActionResult GetTimeLoggedByWeek(DateTime selectedDate) {
         DateTime startDate = StartOfWeek(selectedDate);
@@ -115,7 +158,7 @@ public class TimeLogController : Controller {
 
         return PartialView("Weekly", timePerUser.Values.ToList());
     }
-    
+
     public IActionResult UpdateTimeLogged(string year, string week) {
         DateTime converted = ConvertWeekToDate(int.Parse(year), int.Parse(week));
         DateTime selectedDate = StartOfWeek(converted);
@@ -126,8 +169,24 @@ public class TimeLogController : Controller {
 
     #region Private Helper Methods
 
-    private UserAccount GetUserAccountByID(int userID) {
-        return this.db.UserAccount.Where(u => u.Id == userID).FirstOrDefault();
+    /// <summary>
+    ///     Try to get a user account by the given user ID.
+    /// </summary>
+    /// <param name="userID">The user ID to search for.</param>
+    /// <returns>
+    ///     If the user exists, this method will return a UserAccount object.
+    ///     If the user doesn't exist, this method returns null.
+    /// </returns>
+    private UserAccount? GetUserAccountByID(int userID) {
+        UserAccount userAccount;
+        try {
+            userAccount = this.db.UserAccount.First(u => u.Id == userID);
+        }
+        catch (Exception) {
+            return null;
+        }
+
+        return userAccount;
     }
 
     /// <summary>
