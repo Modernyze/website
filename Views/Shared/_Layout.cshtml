@@ -37,6 +37,10 @@
                             </li>
                         }
                     }
+                    <!-- Only nav-item viewable by all. I need to add a asp-action to the proper NEW CSHTML FILE-->
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Info">Info</a>
+                    </li>
                     <!-- Only place nav items beyond this point if they are used by a logged in user. -->
                     @if (!string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
                         <li class="nav-item">

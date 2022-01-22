@@ -35,6 +35,12 @@ public class UserController : Controller {
         return View();
     }
 
+    // GET: Info about Modernyze.
+    public ActionResult Info()
+    {
+        return View();
+    }
+
     // GET: Admin User Panel
     public ActionResult Admin() {
         List<AdminViewModel> list = (from ua in this.db.UserAccount

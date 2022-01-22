@@ -15,6 +15,7 @@
     <Content Remove="Database\**" />
     <EmbeddedResource Remove="Database\**" />
     <None Remove="Database\**" />
+    <Content Remove="wwwroot\images\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,4 +28,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
 </Project>
