@@ -7,57 +7,61 @@
 }
 
 <h1>User Admin Panel</h1>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Username)
-            </th>
-            <th>
-                First Name
-            </th>
-            <th>
-                Last Name
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                Actions
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (AdminViewModel user in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => user.Username)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => user.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => user.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => user.Email)
-            </td>
-            <td>
-                @if (!user.IsAdmin) {
-                    @using (Html.BeginForm("MakeAdmin", "User", FormMethod.Post)) {
-                        @Html.Hidden("userID", user.UserId)
-                        <input type="submit" class="btn btn-warning" value="Make Administrator"/>
-                    }
-                }
-                @if (user.NotVerified) {
-                    @using (Html.BeginForm("Verify", "User", FormMethod.Post)) {
-                        @Html.Hidden("userID", user.UserId)
-                        <input type="submit" class="btn btn-success" value="Verify"/>
-                    }
-                }
-            </td>
-        </tr>
+<!-- Only show the table if the user is an admin -->
+@if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+    if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Username)
+                    </th>
+                    <th>
+                        First Name
+                    </th>
+                    <th>
+                        Last Name
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (AdminViewModel user in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.Username)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.FirstName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => user.Email)
+                    </td>
+                    <td>
+                        @if (!user.IsAdmin) {
+                            @using (Html.BeginForm("MakeAdmin", "User", FormMethod.Post)) {
+                                @Html.Hidden("userID", user.UserId)
+                                <input type="submit" class="btn btn-warning" value="Make Administrator"/>
+                            }
+                        }
+                        @if (user.NotVerified) {
+                            @using (Html.BeginForm("Verify", "User", FormMethod.Post)) {
+                                @Html.Hidden("userID", user.UserId)
+                                <input type="submit" class="btn btn-success" value="Verify"/>
+                            }
+                        }
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    }
 }
-    </tbody>
-</table>
