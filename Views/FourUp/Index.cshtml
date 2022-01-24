@@ -6,11 +6,14 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+    if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+        <p>
+            <a class="btn btn-modernyze" asp-action="Create">Upload New Four-Up</a>
+        </p>
+        <br/>
+    }
+}
 
 @foreach (FourUp item in Model) {
     <div class="row">
