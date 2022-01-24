@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.FourUp;
 
-namespace ModernyzeWebsite.Controllers; 
+namespace ModernyzeWebsite.Controllers;
 
 public class FourUpController : Controller {
     private readonly ModernyzeWebsiteContext db;

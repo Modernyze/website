@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.TimeLog;
 using ModernyzeWebsite.Models.User;
@@ -19,8 +18,8 @@ public class TimeLogController : Controller {
     #region GET Methods
 
     // GET: TimeLog
-    public async Task<IActionResult> Index() {
-        return View(await this.db.TimeLog.ToListAsync());
+    public ActionResult Index() {
+        return View();
     }
 
     #endregion
@@ -56,6 +55,7 @@ public class TimeLogController : Controller {
         if (recordsAffected != 1) {
             this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
         }
+
         return View("Index");
     }
 
@@ -93,6 +93,7 @@ public class TimeLogController : Controller {
         if (recordsAffected != 1) {
             this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
         }
+
         return View("Index");
     }
 
