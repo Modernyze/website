@@ -7,9 +7,7 @@
         <div class="card-header">
             <h2 class="display-4" id="fourUpTitle">Latest 4-Up</h2>
         </div>
-        <div class="card-body fourUpCard">
-            <iframe class="fourUp" src="https://docs.google.com/document/d/e/2PACX-1vRy0X_dgaFQnHX-casf4Muf5-IdFA4Jac6WhT4cv95dnWwXsQazO78Yu6_Gp6_9ZcmLw28iVsXqigAE/pub?embedded=true"></iframe>
-        </div>
+        <div class="card-body fourUpCard"></div>
         <div class="card-footer"></div>
     </div>
 </div>
@@ -31,8 +29,18 @@
         $(document).ready(function() {
             const $weekSelector = $('#weekSelect');
             const $timeCard = $('#timeCard');
+            const $fourUpCard = $('.fourUpCard');
 
             const now = new Date();
+            // When the page loads, make an AJAX call to get the latest four-up
+            $.ajax({
+                type: 'GET',
+                url: 'FourUp/GetLatest',
+                success: function(response) {
+                    $fourUpCard.html(response);
+                }
+            });
+
             // When the page loads, make an AJAX call to get time logged for this week
             $.ajax({
                 type: 'GET',
