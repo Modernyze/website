@@ -28,3 +28,12 @@ body {
 .hidden {
     display: none;
 }
+
+#fourUpCard {
+    height: 500px;
+}
+
+#fourUp {
+    width: 100%;
+    height: 100%;
+}
