@@ -20,6 +20,21 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
+
+                    <!-- Place any admin-restriced items here -->
+                    @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+                        if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Admin">Admin Panel</a>
+                            </li>
+                        }
+                    }
+
+                    <!-- The following nav items can be used by any user. -->
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-controller="FourUp" asp-action="Index">Four-Ups</a>
+                    </li>
+
                     <!-- Only show the following nodes if the user is not logged in. -->
                     @if (string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
                         <li class="nav-item">
@@ -29,14 +44,7 @@
                             <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Login">Login</a>
                         </li>
                     }
-                    <!-- Place any admin-restriced items here -->
-                    @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
-                        if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Admin">Admin Panel</a>
-                            </li>
-                        }
-                    }
+
                     <!-- Only place nav items beyond this point if they are used by a logged in user. -->
                     @if (!string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
                         <li class="nav-item">
