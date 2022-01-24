@@ -14,7 +14,7 @@ public class UserAccount {
 
     [Required]
     [StringLength(50)]
-    [RegularExpression(@"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}")]
+    [RegularExpression(@"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}", ErrorMessage = "Invalid Email.")]
     public string Email { get; set; }
 
     [Required] [StringLength(50)] public string Password { get; set; }

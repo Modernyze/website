@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[FourUp]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Source] NVARCHAR(2083) NOT NULL, 
+    [WeekOf] DATETIME2 NOT NULL
+)
