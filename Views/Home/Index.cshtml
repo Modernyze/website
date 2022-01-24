@@ -7,7 +7,7 @@
         <div class="card-header">
             <h2 class="display-4" id="fourUpTitle">Latest 4-Up</h2>
         </div>
-        <div class="card-body fourUpCard"><div class="loading"></div></div>
+        <div class="card-body fourUpCard"><div id="fourUpLoader" class="loading"></div></div>
         <div class="card-footer"></div>
     </div>
 </div>
@@ -18,7 +18,7 @@
             <h2 class="display-4" id="timeCardTitle">Time Logged this Week</h2>
             <input id="weekSelect" type="week" min="2022-W2"/>
         </div>
-        <div class="card-body" id="timeCard"><div class="loading"></div></div>
+        <div class="card-body" id="timeCard"><div id="timeCardLoader" class="loading"></div></div>
         <div class="card-footer"></div>
     </div>
 </div>
@@ -26,32 +26,61 @@
 @section Scripts {
     <script type="text/javascript">
         $(document).ready(function() {
+            let fourUpLoading = false;
+            let timeCardLoading = false;
+            const $fourUpLoader = $('#fourUpLoader');
+            const $timeCardLoader = $('#timeCardLoader');
+
+
             const $weekSelector = $('#weekSelect');
             const $timeCard = $('#timeCard');
             const $fourUpCard = $('.fourUpCard');
-            const $loading = $('.loading');
+            
+            // hide loading divs by default
+            $fourUpLoader.hide();
+            $timeCardLoader.hide();
 
-            $loading.hide(); // hide loading divs by default
-
+            // setup AJAX start and stop events.
             $(document)
+                // When an AJAX call starts, determine which loaders to show.
                 .ajaxStart(function() {
-                    $loading.show();
+                    if (fourUpLoading) {
+                        $fourUpLoader.show();
+                    }
+                    if (timeCardLoading) {
+                        $timeCardLoader.show();
+                    }
                 })
+                // When an AJAX call stops, determine which loaders we can hide.
                 .ajaxStop(function() {
-                    $loading.hide();
+                    if (fourUpLoading) {
+                        $fourUpLoader.hide();
+                        fourUpLoading = !fourUpLoading;
+                    }
+                    if (timeCardLoading) {
+                        $timeCardLoader.hide();
+                        timeCardLoading = !timeCardLoading;
+                    }
                 });
-
+            
+            $fourUpLoader.hide();
+            $timeCardLoader.hide();
             const now = new Date();
             // When the page loads, make an AJAX call to get the latest four-up
+            fourUpLoading = true;
             $.ajax({
                 type: 'GET',
                 url: 'FourUp/GetLatest',
                 success: function(response) {
                     $fourUpCard.html(response);
+                },
+                error: function() {
+                    $fourUpCard.html("Could not find latest Four-Up!");
                 }
             });
 
             // When the page loads, make an AJAX call to get time logged for this week
+            timeCardLoading = true;
             $.ajax({
                 type: 'GET',
                 url: 'TimeLog/GetTimeLoggedByWeek',
@@ -67,6 +96,7 @@
             // When a change is made in the week selector, update the table to show the new data.
             $weekSelector.on('change',
                 function() {
+                    timeCardLoading = true;
                     // Update the title
                     const $title = $('#timeCardTitle');
                     $title.text("Time Logged by Week");
