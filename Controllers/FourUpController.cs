@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.FourUp;
@@ -6,20 +7,28 @@ using ModernyzeWebsite.Models.FourUp;
 namespace ModernyzeWebsite.Controllers; 
 
 public class FourUpController : Controller {
-    private readonly ModernyzeWebsiteContext _context;
+    private readonly ModernyzeWebsiteContext db;
 
     public FourUpController(ModernyzeWebsiteContext context) {
-        this._context = context;
+        this.db = context;
     }
 
     // GET: FourUp
     public async Task<IActionResult> Index() {
-        return View(await this._context.FourUp.ToListAsync());
+        return View(await this.db.FourUp.ToListAsync());
     }
 
     // GET: FourUp/Create
     public IActionResult Create() {
         return View();
+    }
+
+    // GET: Latest Four-Up
+    public async Task<IActionResult> GetLatest() {
+        Task<FourUp> getLatest = this.db.FourUp.OrderByDescending(f => f.WeekOf).FirstAsync();
+        await getLatest.WaitAsync(new TimeSpan(0, 0, 10));
+        FourUp latest = getLatest.Result;
+        return PartialView("Latest", latest);
     }
 
     // POST: FourUp/Create
@@ -29,13 +38,11 @@ public class FourUpController : Controller {
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Source,WeekOf")] FourUp fourUp) {
         if (this.ModelState.IsValid) {
-            this._context.Add(fourUp);
-            await this._context.SaveChangesAsync();
+            this.db.Add(fourUp);
+            await this.db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         return View(fourUp);
     }
-
-    
 }
