@@ -14,7 +14,7 @@ public class FourUpController : Controller {
 
     // GET: FourUp
     public async Task<IActionResult> Index() {
-        return View(await this.db.FourUp.OrderByDescending(f => f.WeekOf).ToListAsync());
+        return View(await this.db.FourUp.ToListAsync());
     }
 
     // GET: FourUp/Create
