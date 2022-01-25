@@ -29,6 +29,7 @@ body {
     display: none;
 }
 
+.fourUp,
 .fourUpCard {
     min-height: 520px;
 }
@@ -37,6 +38,7 @@ body {
     width: 100%;
     height: 100%;
 }
+
 
 #timeCard {
     min-height: 200px;

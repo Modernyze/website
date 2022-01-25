@@ -3,23 +3,43 @@
 }
 
 <div class="row">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="display-4" id="fourUpTitle">Latest 4-Up</h2>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="display-4" id="fourUpTitle">Latest 4-Up</h2>
+            </div>
+            <div class="card-body fourUpCard">
+                <div id="fourUpLoader" class="loading"></div></div>
+            <div class="card-footer"></div>
         </div>
-        <div class="card-body fourUpCard"><div id="fourUpLoader" class="loading"></div></div>
-        <div class="card-footer"></div>
     </div>
 </div>
 <br/>
 <div class="row">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="display-4" id="timeCardTitle">Time Logged this Week</h2>
-            <input id="weekSelect" type="week" min="2022-W2"/>
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="display-4" id="timeCardTitle">Time Logged this Week</h2>
+                <input id="weekSelect" type="week" min="2022-W2"/>
+            </div>
+            <div class="card-body" id="timeCard">
+                <div id="timeCardLoader" class="loading"></div></div>
+            <div class="card-footer"></div>
         </div>
-        <div class="card-body" id="timeCard"><div id="timeCardLoader" class="loading"></div></div>
-        <div class="card-footer"></div>
+    </div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="display-4">Trello Board</h2>
+            </div>
+            <div class="card-body">
+                <blockquote class="trello-board-compact">
+                    <a href="https://trello.com/b/26NClmwh/modernyze-senior-project">Trello Board</a>
+                </blockquote>
+                <script src="https://p.trellocdn.com/embed.min.js"></script>
+            </div>
+            <div class="card-footer"></div>
+        </div>
     </div>
 </div>
 
