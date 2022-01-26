@@ -4,53 +4,80 @@
 }
 
 <div class="row">
-    <div class="card">
-        <div class="card-header">
-            Punch In / Punch Out
-        </div>
-        <div class="card-body">
-            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
-                <div class="bg-danger">
-                    <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
-                </div>
-            }
-            @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post, new {@class = "row"})) {
-                <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch In"/>
-            }
-            <br/>
-            @using (Html.BeginForm("PunchOut", "TimeLog", FormMethod.Post, new {@class = "row"})) {
-                <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch Out"/>
-            }
-        </div>
-        <div class="card-footer"></div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            Record Meeting
-        </div>
-        <div class="card-body">
-            <div class="row">
-                    <div class="form-group">
-                    <input type="number" id="hoursInput" class="col-sm-1" min="0" max="5" placeholder="0"/>
-                    <label for="hoursInput" class="col-sm-2">Hours</label>
-                    <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="minutesInput" class="col-sm-1" min="0" max="59" placeholder="0"/>
-                    <label for="minutesInput" class="col-sm-2">Minutes</label>
-                    <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
-                </div>
-                <div class="form-group">
-                    <div id="status" class="hidden" style="text-align: center; margin: 10px 0px;">
-                        <span style="color: cornsilk;"></span>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Punch In / Punch Out
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
+                    <div class="bg-danger">
+                        <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
                     </div>
-                    <input type="button" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                }
+                @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post, new {@class = "row"})) {
+                    <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch In"/>
+                }
+                <br/>
+                @using (Html.BeginForm("PunchOut", "TimeLog", FormMethod.Post, new {@class = "row"})) {
+                    <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch Out"/>
+                }
+            </div>
+            <div class="card-footer"></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Record Meeting
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group">
+                        <input type="number" id="hoursInput" class="col-sm-1" min="0" max="5" placeholder="0"/>
+                        <label for="hoursInput" class="col-sm-2">Hours</label>
+                        <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="minutesInput" class="col-sm-1" min="0" max="59" placeholder="0"/>
+                        <label for="minutesInput" class="col-sm-2">Minutes</label>
+                        <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
+                    </div>
+                    <div class="form-group">
+                        <div id="status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                            <span style="color: cornsilk;"></span>
+                        </div>
+                        <input type="button" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                    </div>
                 </div>
             </div>
+            <div class="card-footer"></div>
         </div>
-        <div class="card-footer"></div>
     </div>
 </div>
+
+    <!-- Only show export controls to site admins -->
+    @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+        if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">Generate Report</div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="weekSelect">Week Of:</label>
+                                <input id="weekSelect" type="week" min="2022-W2"/>
+                            </div>
+                            <div class="form-group">
+                                <input type="button" value="Generate" id="generateBtn" class="btn btn-modernyze"/>
+                            </div>
+                        </div>
+                        <div class="card-footer"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
 
 @section Scripts {
     <script type="text/javascript">
