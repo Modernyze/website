@@ -31,8 +31,7 @@ public class TimeLogController : Controller {
     public async Task<IActionResult> PunchIn() {
         // If the session doesn't contain a UserId variable, the current user isn't logged in.
         if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
-            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
-            return View("Index");
+            return Json(new {success = false, responseText = "You must be logged in to be able to record your time."});
         }
 
         int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
@@ -40,8 +39,7 @@ public class TimeLogController : Controller {
         // If we don't have an account for a given ID, there was a database
         // error or the current user was able to inject the UserId variable.
         if (user == null) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
-            return View("Index");
+            return Json(new {success = false, responseText = "An error occurred when trying to punch in."});
         }
 
         this.db.TimeLog.Add(new TimeLog {
@@ -52,11 +50,11 @@ public class TimeLogController : Controller {
         Task<int> save = this.db.SaveChangesAsync();
         save.Wait();
         int recordsAffected = save.Result;
-        if (recordsAffected != 1) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
-        }
 
-        return View("Index");
+        return Json(new {
+            success = recordsAffected == 1,
+            responseText = recordsAffected == 1 ? "Success" : "There was a problem punching in."
+        });
     }
 
     // POST: Punch Out
@@ -64,8 +62,7 @@ public class TimeLogController : Controller {
     public async Task<IActionResult> PunchOut() {
         // If the session doesn't contain a UserId variable, the current user isn't logged in.
         if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
-            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
-            return View("Index");
+            return Json(new {success = false, responseText = "You must be logged in to be able to record your time."});
         }
 
         int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
@@ -73,8 +70,7 @@ public class TimeLogController : Controller {
         // If we don't have an account for a given ID, there was a database
         // error or the current user was able to inject the UserId variable.
         if (user == null) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
-            return View("Index");
+            return Json(new {success = false, responseText = "An error occurred when trying to punch out."});
         }
 
         TimeLog mostRecent;
@@ -82,19 +78,18 @@ public class TimeLogController : Controller {
             mostRecent = this.db.TimeLog.OrderByDescending(t => t.PunchInTime).First(t => t.UserId == user.Id);
         }
         catch (Exception) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
-            return View("Index");
+            return Json(new {success = false, responseText = "An error occurred when trying to punch out."});
         }
 
         mostRecent.PunchOutTime = DateTime.Now;
         Task<int> save = this.db.SaveChangesAsync();
         save.Wait();
         int recordsAffected = save.Result;
-        if (recordsAffected != 1) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
-        }
 
-        return View("Index");
+        return Json(new {
+            success = recordsAffected == 1,
+            responseText = recordsAffected == 1 ? "Success" : "There was a problem punching out."
+        });
     }
 
     // POST: Record Meeting
