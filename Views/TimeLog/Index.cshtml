@@ -54,6 +54,7 @@
         </div>
     </div>
 </div>
+<br/>
 
     <!-- Only show export controls to site admins -->
     @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
@@ -63,13 +64,19 @@
                     <div class="card">
                         <div class="card-header">Generate Report</div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <label for="weekSelect">Week Of:</label>
-                                <input id="weekSelect" type="week" min="2022-W2"/>
-                            </div>
-                            <div class="form-group">
-                                <input type="button" value="Generate" id="generateBtn" class="btn btn-modernyze"/>
-                            </div>
+                            @using (Html.BeginForm("GenerateTimeLoggedReport", "TimeLog", FormMethod.Get)) {
+                                <div class="form-group">
+                                    <input type="hidden" id="year" name="year"/>
+                                    <input type="hidden" id="week" name="week"/>
+                                    <input id="weekSelect" type="week" min="2022-W2"/>
+                                </div>
+                                <div class="form-group">
+                                    <div id="report-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                                        <span style="color: cornsilk;"></span>
+                                    </div>
+                                    <input type="submit" id="generateBtn" value="Generate" class="btn btn-modernyze"/>
+                                </div>
+                            }
                         </div>
                         <div class="card-footer"></div>
                     </div>
@@ -85,6 +92,12 @@
             const $submitBtn = $('#meetingBtn');
             const $punchStatus = $('#punch-status');
             const $punchBtn = $('.punchBtn');
+
+            const $reportWeek = $('#weekSelect');
+            const $hiddenYear = $('#year');
+            const $hiddenWeek = $('#week');
+            const $reportStatus = $('#report-status');
+            const $generateBtn = $('#generateBtn');
 
             const $hoursInput = $('#hoursInput');
             const $hoursWarning = $('#hoursWarning');
@@ -172,6 +185,22 @@
                             $(this).attr('disabled', false);
                         }
                     });
+                });
+
+            $reportWeek.on('change',
+                function() {
+                    // Update the hidden values so that the form submission works correctly
+                    $hiddenYear.val($reportWeek.val().split('-')[0]);
+                    $hiddenWeek.val($reportWeek.val().split('-')[1].slice(1));
+                });
+
+            $generateBtn.on('click',
+                function(e) {
+                    // Check if the hidden values are set, stop the submission if they are not
+                    if ($hiddenYear.val() === '' || $hiddenWeek === '') {
+                        e.preventDefault();
+                        DisplayStatus($reportStatus, false, 'You must choose a week to generate a report for.');
+                    }
                 });
 
             // Display an AJAX call's return data in a status bar for a short time, then hide it.

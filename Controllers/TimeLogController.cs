@@ -18,13 +18,26 @@ public class TimeLogController : Controller {
     #region GET Methods
 
     // GET: TimeLog
+    [HttpGet]
     public ActionResult Index() {
         return View();
+    }
+
+    // GET: TimeReport
+    [HttpGet]
+    public IActionResult GenerateTimeLoggedReport(int year, int week) {
+        return PartialView("TimeReport");
     }
 
     #endregion
 
     #region POST Methods
+
+    #endregion
+
+    #endregion
+
+    #region AJAX Methods
 
     // POST: Punch In
     [HttpPost]
@@ -121,12 +134,6 @@ public class TimeLogController : Controller {
         });
     }
 
-    #endregion
-
-    #endregion
-
-    #region AJAX Methods
-
     /// <summary>
     ///     Get the table of TimeLogs grouped by user for the week containing the selected date.
     /// </summary>
@@ -155,8 +162,8 @@ public class TimeLogController : Controller {
         return PartialView("Weekly", timePerUser.Values.ToList());
     }
 
-    public IActionResult UpdateTimeLogged(string year, string week) {
-        DateTime converted = ConvertWeekToDate(int.Parse(year), int.Parse(week));
+    public IActionResult UpdateTimeLogged(int year, int week) {
+        DateTime converted = ConvertWeekToDate(year, week);
         DateTime selectedDate = StartOfWeek(converted);
         return GetTimeLoggedByWeek(selectedDate);
     }
