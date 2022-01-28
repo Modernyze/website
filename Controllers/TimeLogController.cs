@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.TimeLog;
 using ModernyzeWebsite.Models.User;
+using SelectPdf;
 
 namespace ModernyzeWebsite.Controllers;
 
@@ -26,12 +27,23 @@ public class TimeLogController : Controller {
     // GET: TimeReport
     [HttpGet]
     public IActionResult GenerateTimeLoggedReport(int year, int week) {
-        return PartialView("TimeReport");
+        return View("TimeReport");
     }
 
     #endregion
 
     #region POST Methods
+
+    [HttpPost]
+    public IActionResult ConvertPageToPDF(string toConvert) {
+        HtmlToPdf converter = new();
+        PdfDocument doc = converter.ConvertHtmlString(toConvert);
+        byte[] pdf = doc.Save();
+        doc.Close();
+        FileResult file = new FileContentResult(pdf, "application/pdf");
+        file.FileDownloadName = "Document.pdf";
+        return file;
+    }
 
     #endregion
 

@@ -1,5 +1,33 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Weekly Time Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Time Report</h1>
+
+<div class="row">
+    <div class="report">
+        Week of XX/XX/XX Time Report
+    </div>
+</div>
+
+@using (Html.BeginForm("ConvertPageToPDF", "TimeLog", FormMethod.Post)) {
+    <input type="hidden" id="toConvert" name="toConvert"/>
+    <input type="submit" id="convert" value="Convert To PDF" class="btn btn-modernyze"/>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const $submit = $('#convert');
+            const $toConvert = $('#toConvert');
+            const $report = $('.report');
+
+            $submit.on('click',
+                function() {
+                    // Place the report html into the hidden value for the form submission
+                    $toConvert.val($report.html());
+                });
+        });
+    </script>
 }
