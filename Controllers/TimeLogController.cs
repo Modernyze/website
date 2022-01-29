@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.TimeLog;
 using ModernyzeWebsite.Models.User;
-using SelectPdf;
 
 namespace ModernyzeWebsite.Controllers;
 
@@ -27,23 +26,26 @@ public class TimeLogController : Controller {
     // GET: TimeReport
     [HttpGet]
     public IActionResult GenerateTimeLoggedReport(int year, int week) {
-        return View("TimeReport");
+        DateTime converted = ConvertWeekToDate(year, week);
+        DateTime startDate = StartOfWeek(converted);
+        DateTime endDate = startDate.AddDays(7);
+        IEnumerable<TimeLog> rawLogs = GetTimeLogsForGivenDateRange(startDate, endDate).ToList();
+        // Create a map between UserID and FullName for the Reporting feature to use.
+        Dictionary<int, string> nameMap = new();
+        foreach (TimeLog log in rawLogs) {
+            if (nameMap.ContainsKey(log.UserId)) {
+                continue;
+            }
+
+            string nameForUser = GetUserAccountByID(log.UserId).FullName;
+            nameMap.Add(log.UserId, nameForUser);
+        }
+        return View("TimeReport", new TimeReport(rawLogs, startDate, nameMap));
     }
 
     #endregion
 
     #region POST Methods
-
-    [HttpPost]
-    public IActionResult ConvertPageToPDF(string toConvert) {
-        HtmlToPdf converter = new();
-        PdfDocument doc = converter.ConvertHtmlString(toConvert);
-        byte[] pdf = doc.Save();
-        doc.Close();
-        FileResult file = new FileContentResult(pdf, "application/pdf");
-        file.FileDownloadName = "Document.pdf";
-        return file;
-    }
 
     #endregion
 
@@ -152,8 +154,7 @@ public class TimeLogController : Controller {
     public IActionResult GetTimeLoggedByWeek(DateTime selectedDate) {
         DateTime startDate = StartOfWeek(selectedDate);
         DateTime endDate = startDate.AddDays(7);
-        IEnumerable<TimeLog> list = this.db.TimeLog.Where(t => t.PunchInTime >= startDate && t.PunchInTime <= endDate)
-                                        .ToList();
+        IEnumerable<TimeLog> list = GetTimeLogsForGivenDateRange(startDate, endDate).ToList();
         Dictionary<int, TimeLogViewModel> timePerUser = new();
         foreach (TimeLog timeLog in list) {
             if (timePerUser.ContainsKey(timeLog.UserId)) {
@@ -183,6 +184,17 @@ public class TimeLogController : Controller {
     #endregion
 
     #region Private Helper Methods
+
+    /// <summary>
+    /// Get all TimeLogs within the given date range.
+    /// </summary>
+    /// <param name="start">Start date</param>
+    /// <param name="end">End Date</param>
+    /// <returns>A List of all TimeLogs in the database that were recorded
+    /// between the given date range.</returns>
+    private IEnumerable<TimeLog> GetTimeLogsForGivenDateRange(DateTime start, DateTime end) {
+        return this.db.TimeLog.Where(t => t.PunchInTime >= start && t.PunchInTime <= end);
+    }
 
     /// <summary>
     ///     Try to get a user account by the given user ID.
