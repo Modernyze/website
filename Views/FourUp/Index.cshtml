@@ -17,14 +17,16 @@
 
 @foreach (FourUp item in Model) {
     <div class="row">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="display-4 fourUpTitle">Four-Up for Week of @string.Format("{0}/{1}/{2}", item.WeekOf.Month, item.WeekOf.Day, item.WeekOf.Year)</h2>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="display-4 fourUpTitle">Four-Up for Week of @string.Format("{0}/{1}/{2}", item.WeekOf.Month, item.WeekOf.Day, item.WeekOf.Year)</h2>
+                </div>
+                <div class="card-body fourUpCard">
+                    <iframe class="fourUp" src="@item.Source"></iframe>
+                </div>
+                <div class="card-footer"></div>
             </div>
-            <div class="card-body fourUpCard">
-                <iframe class="fourUp" src="@item.Source"></iframe>
-            </div>
-            <div class="card-footer"></div>
         </div>
     </div>
 }

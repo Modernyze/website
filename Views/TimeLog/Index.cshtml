@@ -4,59 +4,100 @@
 }
 
 <div class="row">
-    <div class="card">
-        <div class="card-header">
-            Punch In / Punch Out
-        </div>
-        <div class="card-body">
-            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
-                <div class="bg-danger">
-                    <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
-                </div>
-            }
-            @using (Html.BeginForm("PunchIn", "TimeLog", FormMethod.Post, new {@class = "row"})) {
-                <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch In"/>
-            }
-            <br/>
-            @using (Html.BeginForm("PunchOut", "TimeLog", FormMethod.Post, new {@class = "row"})) {
-                <input type="submit" class="btn btn-modernyze col-sm-2" value="Punch Out"/>
-            }
-        </div>
-        <div class="card-footer"></div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            Record Meeting
-        </div>
-        <div class="card-body">
-            <div class="row">
-                    <div class="form-group">
-                    <input type="number" id="hoursInput" class="col-sm-1" min="0" max="5" placeholder="0"/>
-                    <label for="hoursInput" class="col-sm-2">Hours</label>
-                    <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="minutesInput" class="col-sm-1" min="0" max="59" placeholder="0"/>
-                    <label for="minutesInput" class="col-sm-2">Minutes</label>
-                    <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
-                </div>
-                <div class="form-group">
-                    <div id="status" class="hidden" style="text-align: center; margin: 10px 0px;">
-                        <span style="color: cornsilk;"></span>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Punch In / Punch Out
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
+                    <div class="bg-danger">
+                        <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
                     </div>
-                    <input type="button" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                }
+                <div id="punch-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                    <span style="color: cornsilk;"></span>
+                </div>
+                <input type="button" name="PunchIn" class="btn btn-modernyze col-sm-2 punchBtn" value="Punch In"/>
+                <br/>
+                <input type="button" name="PunchOut" class="btn btn-modernyze col-sm-2 punchBtn" value="Punch Out"/>
+            </div>
+            <div class="card-footer"></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Record Meeting
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group">
+                        <input type="number" id="hoursInput" class="col-sm-1" min="0" max="5" placeholder="0"/>
+                        <label for="hoursInput" class="col-sm-2">Hours</label>
+                        <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="minutesInput" class="col-sm-1" min="0" max="59" placeholder="0"/>
+                        <label for="minutesInput" class="col-sm-2">Minutes</label>
+                        <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
+                    </div>
+                    <div class="form-group">
+                        <div id="meeting-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                            <span style="color: cornsilk;"></span>
+                        </div>
+                        <input type="button" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                    </div>
                 </div>
             </div>
+            <div class="card-footer"></div>
         </div>
-        <div class="card-footer"></div>
     </div>
 </div>
+<br/>
+
+    <!-- Only show export controls to site admins -->
+    @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+        if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">Generate Report</div>
+                        <div class="card-body">
+                            @using (Html.BeginForm("GenerateTimeLoggedReport", "TimeLog", FormMethod.Get)) {
+                                <div class="form-group">
+                                    <input type="hidden" id="year" name="year"/>
+                                    <input type="hidden" id="week" name="week"/>
+                                    <input id="weekSelect" type="week" min="2022-W2"/>
+                                </div>
+                                <div class="form-group">
+                                    <div id="report-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                                        <span style="color: cornsilk;"></span>
+                                    </div>
+                                    <input type="submit" id="generateBtn" value="Generate" class="btn btn-modernyze"/>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
 
 @section Scripts {
     <script type="text/javascript">
         $(document).ready(function() {
-            const $status = $('#status');
+            const $meetingStatus = $('#meeting-status');
             const $submitBtn = $('#meetingBtn');
+            const $punchStatus = $('#punch-status');
+            const $punchBtn = $('.punchBtn');
+
+            const $reportWeek = $('#weekSelect');
+            const $hiddenYear = $('#year');
+            const $hiddenWeek = $('#week');
+            const $reportStatus = $('#report-status');
+            const $generateBtn = $('#generateBtn');
 
             const $hoursInput = $('#hoursInput');
             const $hoursWarning = $('#hoursWarning');
@@ -102,30 +143,82 @@
                         return;
                     }
 
+                    // Disable the button to try to eliminate double-clicks
+                    $(this).attr('disabled', true);
                     // If we get here there are no problems, and we can perform our POST.
                     $.ajax({
-                        type: "POST",
-                        url: "TimeLog/RecordMeeting",
+                        type: 'POST',
+                        url: 'TimeLog/RecordMeeting',
                         dataType: 'json',
                         data: {
                             hours: hours,
                             minutes: minutes
                         },
                         success: function(response) {
-                            if (response.success) {
-                                $status.removeClass('hidden').addClass('bg-success');
-                                $status.children('span').html(response.responseText);
-                            } else {
-                                $status.removeClass('hidden').addClass('bg-danger');
-                                $status.children('span').html(response.responseText);
-                            }
+                            DisplayStatus($meetingStatus, response.success, response.responseText);
                         },
                         error: function() {
-                            $status.removeClass('hidden').addClass('bg-danger');
-                            $status.children('span').html('The server encountered an error.');
+                            DisplayStatus($meetingStatus, false, 'The server encountered an error.');
+                        },
+                        complete: () => {
+                            // When the AJAX call is complete, re-enable the button. 
+                            // We use a lambda here so that $(this) still refers to the button that was clicked.
+                            $(this).attr('disabled', false);
                         }
                     });
                 });
+
+            $punchBtn.on('click',
+                function() {
+                    const name = $(this).attr('name');
+                    $(this).attr('disabled', true);
+                    $.ajax({
+                        type: "POST",
+                        url: `TimeLog/${name}`,
+                        success: function(response) {
+                            DisplayStatus($punchStatus, response.success, response.responseText);
+                        },
+                        error: function() {
+                            DisplayStatus($punchStatus, false, 'The server encountered an error.');
+                        },
+                        complete: () => {
+                            $(this).attr('disabled', false);
+                        }
+                    });
+                });
+
+            $reportWeek.on('change',
+                function() {
+                    // Update the hidden values so that the form submission works correctly
+                    $hiddenYear.val($reportWeek.val().split('-')[0]);
+                    $hiddenWeek.val($reportWeek.val().split('-')[1].slice(1));
+                });
+
+            $generateBtn.on('click',
+                function(e) {
+                    // Check if the hidden values are set, stop the submission if they are not
+                    if ($hiddenYear.val() === '' || $hiddenWeek === '') {
+                        e.preventDefault();
+                        DisplayStatus($reportStatus, false, 'You must choose a week to generate a report for.');
+                    }
+                });
+
+            // Display an AJAX call's return data in a status bar for a short time, then hide it.
+            // The element is a jQuery object to insert the message into, show and hide.
+            // Success is the status of the call, did it succeed or fail?
+            // Message is the message to place inside the element.
+            function DisplayStatus(element, success, message) {
+                if (success) {
+                    element.addClass('bg-success');
+                } else {
+                    element.addClass('bg-danger');
+                }
+                element.children('span').html(message);
+                element.removeClass('hidden');
+                setTimeout(function() {
+                    element.addClass('hidden');
+                }, 5000);
+            }
         });
     </script>
 }

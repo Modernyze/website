@@ -1,0 +1,107 @@
+﻿@model ModernyzeWebsite.Models.TimeLog.TimeReport
+
+@{
+    ViewData["Title"] = "Weekly Time Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="report" id="report">
+        <h1>@Model.ReportTitle</h1>
+        <br/>
+        <div id="individualChartContainer" style="height: 370px; width: 100%;"></div>
+        <br/>
+        <div id="teamChartContainer" style="height: 370px; width: 100%;"></div>
+    </div>
+</div>
+
+<input type="button" id="convert" value="Export to PNG" class="btn btn-modernyze"/>
+
+@section Scripts {
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            const $submit = $('#convert');
+
+            const individualChart = new CanvasJS.Chart("individualChartContainer",
+                {
+                    theme: "light1",
+                    animationEnabled: false,
+                    title: {
+                        text: "Individual Time Tracked"
+                    },
+                    axisX: {
+                        title: "Member Name"
+                    },
+                    axisY: {
+                        title: "Hours Tracked",
+                        minimum: 0,
+                        maximum: 16,
+                        stripLines: [
+                            { startValue: 12, endValue: 12.1, color: '#FF0000' }
+                        ]
+                    },
+                    data: [
+                        {
+                            type: "column",
+                            dataPoints: [
+                                @Html.Raw(Model.IndividualReport)
+                            ]
+                        }
+                    ]
+                });
+            individualChart.render();
+
+            const teamChart = new CanvasJS.Chart("teamChartContainer",
+                {
+                    theme: "light1",
+                    animationEnabled: false,
+                    title: {
+                        text: "Team Time Tracked"
+                    },
+                    axisY: {
+                        title: "Hours Tracked",
+                        minimum: 0,
+                        maximum: 60,
+                        stripLines: [
+                            { startValue: 48, endValue: 48.1, color: '#FF0000'}
+                        ]
+                    },
+                    data: [
+                        {
+                            type: "bar",
+                            dataPoints: [
+                                @Html.Raw(Model.TeamReport)
+                            ]
+                        }
+                    ]
+                });
+            teamChart.render();
+
+            $submit.on('click',
+                function() {
+                    html2canvas(document.querySelector('#report')).then(function(canvas) {
+                        saveAs(canvas.toDataURL(), 'report.png');
+                    });
+                });
+
+            function saveAs(uri, filename) {
+                const link = document.createElement('a');
+                if (typeof link.download === 'string') {
+                    link.href = uri;
+                    link.download = filename;
+
+                    // Firefox requires the link to be in the body
+                    document.body.appendChild(link);
+
+                    // simulate click
+                    link.click();
+
+                    // remove the link when done
+                    document.body.removeChild(link);
+                }
+            }
+        });
+    </script>
+}
