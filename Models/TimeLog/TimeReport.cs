@@ -51,7 +51,7 @@ public class TimeReport {
     private Dictionary<int, TimeSpan> TotalTimeByMember() {
         Dictionary<int, TimeSpan> byMember = new();
         foreach (TimeLog log in this.logs) {
-            if (log.PunchOutTime.Value == DateTime.MinValue) {
+            if (log.PunchOutTime == null) {
                 continue;
             }
 
@@ -75,7 +75,7 @@ public class TimeReport {
     private TimeSpan TotalTimeByTeam() {
         TimeSpan sum = new(0);
         foreach (TimeLog log in this.logs) {
-            if (log.PunchOutTime.Value == DateTime.MinValue) {
+            if (log.PunchOutTime == null) {
                 continue;
             }
 

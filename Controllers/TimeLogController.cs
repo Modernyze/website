@@ -40,6 +40,7 @@ public class TimeLogController : Controller {
             string nameForUser = GetUserAccountByID(log.UserId).FullName;
             nameMap.Add(log.UserId, nameForUser);
         }
+
         return View("TimeReport", new TimeReport(rawLogs, startDate, nameMap));
     }
 
@@ -106,6 +107,10 @@ public class TimeLogController : Controller {
         }
         catch (Exception) {
             return Json(new {success = false, responseText = "An error occurred when trying to punch out."});
+        }
+
+        if (mostRecent.PunchOutTime != null && mostRecent.PunchOutTime.Value != DateTime.MinValue) {
+            return Json(new {success = false, responseText = "You must be punched in to be able to punch out."});
         }
 
         mostRecent.PunchOutTime = DateTime.Now;
@@ -186,12 +191,14 @@ public class TimeLogController : Controller {
     #region Private Helper Methods
 
     /// <summary>
-    /// Get all TimeLogs within the given date range.
+    ///     Get all TimeLogs within the given date range.
     /// </summary>
     /// <param name="start">Start date</param>
     /// <param name="end">End Date</param>
-    /// <returns>A List of all TimeLogs in the database that were recorded
-    /// between the given date range.</returns>
+    /// <returns>
+    ///     A List of all TimeLogs in the database that were recorded
+    ///     between the given date range.
+    /// </returns>
     private IEnumerable<TimeLog> GetTimeLogsForGivenDateRange(DateTime start, DateTime end) {
         return this.db.TimeLog.Where(t => t.PunchInTime >= start && t.PunchInTime <= end);
     }

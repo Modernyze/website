@@ -18,9 +18,9 @@
                 <div id="punch-status" class="hidden" style="text-align: center; margin: 10px 0px;">
                     <span style="color: cornsilk;"></span>
                 </div>
-                <input type="button" name="PunchIn" class="btn btn-modernyze col-sm-2 punchBtn" value="Punch In"/>
+                <input type="button" name="PunchIn" class="btn btn-modernyze punchBtn" value="Punch In"/>
                 <br/>
-                <input type="button" name="PunchOut" class="btn btn-modernyze col-sm-2 punchBtn" value="Punch Out"/>
+                <input type="button" name="PunchOut" class="btn btn-modernyze punchBtn" value="Punch Out"/>
             </div>
             <div class="card-footer"></div>
         </div>
@@ -33,12 +33,12 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group">
-                        <input type="number" id="hoursInput" class="col-sm-1" min="0" max="5" placeholder="0"/>
+                        <input type="number" id="hoursInput" min="0" max="5" placeholder="0"/>
                         <label for="hoursInput" class="col-sm-2">Hours</label>
                         <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
                     </div>
                     <div class="form-group">
-                        <input type="number" id="minutesInput" class="col-sm-1" min="0" max="59" placeholder="0"/>
+                        <input type="number" id="minutesInput" min="0" max="59" placeholder="0"/>
                         <label for="minutesInput" class="col-sm-2">Minutes</label>
                         <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
                     </div>
