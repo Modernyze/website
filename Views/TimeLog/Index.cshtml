@@ -3,87 +3,94 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                Punch In / Punch Out
-            </div>
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
-                    <div class="bg-danger">
-                        <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
+
+<!-- Only show the time logging controls if the user is registered -->
+@if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+    if (Context.Session.GetString("HighestPermission").Equals("Registered User") ||
+        Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Punch In / Punch Out
                     </div>
-                }
-                <div id="punch-status" class="hidden" style="text-align: center; margin: 10px 0px;">
-                    <span style="color: cornsilk;"></span>
-                </div>
-                <input type="button" name="PunchIn" class="btn btn-modernyze punchBtn" value="Punch In"/>
-                <br/>
-                <input type="button" name="PunchOut" class="btn btn-modernyze punchBtn" value="Punch Out"/>
-            </div>
-            <div class="card-footer"></div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                Record Meeting
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="form-group">
-                        <input type="number" id="hoursInput" min="0" max="5" placeholder="0"/>
-                        <label for="hoursInput" class="col-sm-2">Hours</label>
-                        <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
-                    </div>
-                    <div class="form-group">
-                        <input type="number" id="minutesInput" min="0" max="59" placeholder="0"/>
-                        <label for="minutesInput" class="col-sm-2">Minutes</label>
-                        <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
-                    </div>
-                    <div class="form-group">
-                        <div id="meeting-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
+                            <div class="bg-danger">
+                                <span style="color: cornsilk;">@ViewBag.ErrorMessage</span>
+                            </div>
+                        }
+                        <div id="punch-status" class="hidden" style="text-align: center; margin: 10px 0px;">
                             <span style="color: cornsilk;"></span>
                         </div>
-                        <input type="button" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                        <input type="button" name="PunchIn" class="btn btn-modernyze punchBtn" value="Punch In"/>
+                        <br/>
+                        <input type="button" name="PunchOut" class="btn btn-modernyze punchBtn" value="Punch Out"/>
                     </div>
+                    <div class="card-footer"></div>
                 </div>
             </div>
-            <div class="card-footer"></div>
-        </div>
-    </div>
-</div>
-<br/>
-
-    <!-- Only show export controls to site admins -->
-    @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
-        if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
-            <div class="row">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">Generate Report</div>
-                        <div class="card-body">
-                            @using (Html.BeginForm("GenerateTimeLoggedReport", "TimeLog", FormMethod.Get)) {
-                                <div class="form-group">
-                                    <input type="hidden" id="year" name="year"/>
-                                    <input type="hidden" id="week" name="week"/>
-                                    <input id="weekSelect" type="week" min="2022-W2"/>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Record Meeting
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group">
+                                <input type="number" id="hoursInput" min="0" max="5" placeholder="0"/>
+                                <label for="hoursInput" class="col-sm-2">Hours</label>
+                                <span class="hidden bg-warning" id="hoursWarning">You must enter a value between 0 and 5.</span>
+                            </div>
+                            <div class="form-group">
+                                <input type="number" id="minutesInput" min="0" max="59" placeholder="0"/>
+                                <label for="minutesInput" class="col-sm-2">Minutes</label>
+                                <span class="hidden bg-warning" id="minutesWarning">You must enter a value between 0 and 59.</span>
+                            </div>
+                            <div class="form-group">
+                                <div id="meeting-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                                    <span style="color: cornsilk;"></span>
                                 </div>
-                                <div class="form-group">
-                                    <div id="report-status" class="hidden" style="text-align: center; margin: 10px 0px;">
-                                        <span style="color: cornsilk;"></span>
-                                    </div>
-                                    <input type="submit" id="generateBtn" value="Generate" class="btn btn-modernyze"/>
-                                </div>
-                            }
+                                <input type="button" value="Submit" id="meetingBtn" class="btn btn-modernyze"/>
+                            </div>
                         </div>
-                        <div class="card-footer"></div>
                     </div>
+                    <div class="card-footer"></div>
                 </div>
             </div>
+        </div>
+        <br/>
+
+        <!-- Only show export controls to site admins -->
+        @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+            if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header">Generate Report</div>
+                            <div class="card-body">
+                                @using (Html.BeginForm("GenerateTimeLoggedReport", "TimeLog", FormMethod.Get)) {
+                                    <div class="form-group">
+                                        <input type="hidden" id="year" name="year"/>
+                                        <input type="hidden" id="week" name="week"/>
+                                        <input id="weekSelect" type="week" min="2022-W2"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <div id="report-status" class="hidden" style="text-align: center; margin: 10px 0px;">
+                                            <span style="color: cornsilk;"></span>
+                                        </div>
+                                        <input type="submit" id="generateBtn" value="Generate" class="btn btn-modernyze"/>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer"></div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
     }
+}
 
 @section Scripts {
     <script type="text/javascript">
