@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.TimeLog;
 using ModernyzeWebsite.Models.User;
@@ -19,21 +18,48 @@ public class TimeLogController : Controller {
     #region GET Methods
 
     // GET: TimeLog
-    public async Task<IActionResult> Index() {
-        return View(await this.db.TimeLog.ToListAsync());
+    [HttpGet]
+    public ActionResult Index() {
+        return View();
+    }
+
+    // GET: TimeReport
+    [HttpGet]
+    public IActionResult GenerateTimeLoggedReport(int year, int week) {
+        DateTime converted = ConvertWeekToDate(year, week);
+        DateTime startDate = StartOfWeek(converted);
+        DateTime endDate = startDate.AddDays(7);
+        IEnumerable<TimeLog> rawLogs = GetTimeLogsForGivenDateRange(startDate, endDate).ToList();
+        // Create a map between UserID and FullName for the Reporting feature to use.
+        Dictionary<int, string> nameMap = new();
+        foreach (TimeLog log in rawLogs) {
+            if (nameMap.ContainsKey(log.UserId)) {
+                continue;
+            }
+
+            string nameForUser = GetUserAccountByID(log.UserId).FullName;
+            nameMap.Add(log.UserId, nameForUser);
+        }
+
+        return View("TimeReport", new TimeReport(rawLogs, startDate, nameMap));
     }
 
     #endregion
 
     #region POST Methods
 
+    #endregion
+
+    #endregion
+
+    #region AJAX Methods
+
     // POST: Punch In
     [HttpPost]
     public async Task<IActionResult> PunchIn() {
         // If the session doesn't contain a UserId variable, the current user isn't logged in.
         if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
-            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
-            return View("Index");
+            return Json(new {success = false, responseText = "You must be logged in to be able to record your time."});
         }
 
         int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
@@ -41,8 +67,7 @@ public class TimeLogController : Controller {
         // If we don't have an account for a given ID, there was a database
         // error or the current user was able to inject the UserId variable.
         if (user == null) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
-            return View("Index");
+            return Json(new {success = false, responseText = "An error occurred when trying to punch in."});
         }
 
         this.db.TimeLog.Add(new TimeLog {
@@ -53,10 +78,11 @@ public class TimeLogController : Controller {
         Task<int> save = this.db.SaveChangesAsync();
         save.Wait();
         int recordsAffected = save.Result;
-        if (recordsAffected != 1) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch in.";
-        }
-        return View("Index");
+
+        return Json(new {
+            success = recordsAffected == 1,
+            responseText = recordsAffected == 1 ? "Success" : "There was a problem punching in."
+        });
     }
 
     // POST: Punch Out
@@ -64,8 +90,7 @@ public class TimeLogController : Controller {
     public async Task<IActionResult> PunchOut() {
         // If the session doesn't contain a UserId variable, the current user isn't logged in.
         if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
-            this.ViewBag.ErrorMessage = "You must be logged in to be able to record your time.";
-            return View("Index");
+            return Json(new {success = false, responseText = "You must be logged in to be able to record your time."});
         }
 
         int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
@@ -73,8 +98,7 @@ public class TimeLogController : Controller {
         // If we don't have an account for a given ID, there was a database
         // error or the current user was able to inject the UserId variable.
         if (user == null) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
-            return View("Index");
+            return Json(new {success = false, responseText = "An error occurred when trying to punch out."});
         }
 
         TimeLog mostRecent;
@@ -82,18 +106,22 @@ public class TimeLogController : Controller {
             mostRecent = this.db.TimeLog.OrderByDescending(t => t.PunchInTime).First(t => t.UserId == user.Id);
         }
         catch (Exception) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
-            return View("Index");
+            return Json(new {success = false, responseText = "An error occurred when trying to punch out."});
+        }
+
+        if (mostRecent.PunchOutTime != null && mostRecent.PunchOutTime.Value != DateTime.MinValue) {
+            return Json(new {success = false, responseText = "You must be punched in to be able to punch out."});
         }
 
         mostRecent.PunchOutTime = DateTime.Now;
         Task<int> save = this.db.SaveChangesAsync();
         save.Wait();
         int recordsAffected = save.Result;
-        if (recordsAffected != 1) {
-            this.ViewBag.ErrorMessage = "An error occurred when trying to punch out.";
-        }
-        return View("Index");
+
+        return Json(new {
+            success = recordsAffected == 1,
+            responseText = recordsAffected == 1 ? "Success" : "There was a problem punching out."
+        });
     }
 
     // POST: Record Meeting
@@ -125,20 +153,13 @@ public class TimeLogController : Controller {
         });
     }
 
-    #endregion
-
-    #endregion
-
-    #region AJAX Methods
-
     /// <summary>
     ///     Get the table of TimeLogs grouped by user for the week containing the selected date.
     /// </summary>
     public IActionResult GetTimeLoggedByWeek(DateTime selectedDate) {
         DateTime startDate = StartOfWeek(selectedDate);
         DateTime endDate = startDate.AddDays(7);
-        IEnumerable<TimeLog> list = this.db.TimeLog.Where(t => t.PunchInTime >= startDate && t.PunchInTime <= endDate)
-                                        .ToList();
+        IEnumerable<TimeLog> list = GetTimeLogsForGivenDateRange(startDate, endDate).ToList();
         Dictionary<int, TimeLogViewModel> timePerUser = new();
         foreach (TimeLog timeLog in list) {
             if (timePerUser.ContainsKey(timeLog.UserId)) {
@@ -159,8 +180,8 @@ public class TimeLogController : Controller {
         return PartialView("Weekly", timePerUser.Values.ToList());
     }
 
-    public IActionResult UpdateTimeLogged(string year, string week) {
-        DateTime converted = ConvertWeekToDate(int.Parse(year), int.Parse(week));
+    public IActionResult UpdateTimeLogged(int year, int week) {
+        DateTime converted = ConvertWeekToDate(year, week);
         DateTime selectedDate = StartOfWeek(converted);
         return GetTimeLoggedByWeek(selectedDate);
     }
@@ -168,6 +189,19 @@ public class TimeLogController : Controller {
     #endregion
 
     #region Private Helper Methods
+
+    /// <summary>
+    ///     Get all TimeLogs within the given date range.
+    /// </summary>
+    /// <param name="start">Start date</param>
+    /// <param name="end">End Date</param>
+    /// <returns>
+    ///     A List of all TimeLogs in the database that were recorded
+    ///     between the given date range.
+    /// </returns>
+    private IEnumerable<TimeLog> GetTimeLogsForGivenDateRange(DateTime start, DateTime end) {
+        return this.db.TimeLog.Where(t => t.PunchInTime >= start && t.PunchInTime <= end);
+    }
 
     /// <summary>
     ///     Try to get a user account by the given user ID.
