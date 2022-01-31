@@ -9,9 +9,68 @@
     <div class="report" id="report">
         <h1>@Model.ReportTitle</h1>
         <br/>
-        <div id="individualChartContainer" style="height: 370px; width: 100%;"></div>
+        <div class="row">
+            <div id="individualChartContainer" style="height: 370px; width: 100%;"></div>
+            <br/>
+            <table class="table table-bordered table-responsive">
+                <thead>
+                <tr>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Time Logged (hours)
+                    </td>
+                    <td>
+                        Time Goal (hours)
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                    @foreach (KeyValuePair<string, TimeSpan> kvp in Model.IndividualStats)
+                    {
+                        <tr>
+                            <td>
+                                @kvp.Key
+                            </td>
+                            <td>
+                                @kvp.Value.TotalHours.ToString("N2")
+                            </td>
+                            <td>
+                                @Model.IndividualTimeGoal
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
         <br/>
-        <div id="teamChartContainer" style="height: 370px; width: 100%;"></div>
+        <div class="row">
+            <div id="teamChartContainer" style="height: 370px; width: 100%;"></div>
+            <br/>
+            <table class="table table-bordered table-responsive">
+                <thead>
+                <tr>
+                    <td>
+                        Time Logged as Team (hours)
+                    </td>
+                    <td>
+                        Time Goal (hours)
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        @Model.TeamStats.TotalHours.ToString("N2")
+                    </td>
+                    <td>
+                        @Model.TeamTimeGoal
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

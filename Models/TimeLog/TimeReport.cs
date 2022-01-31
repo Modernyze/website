@@ -4,15 +4,25 @@ using System.Text;
 namespace ModernyzeWebsite.Models.TimeLog;
 
 public class TimeReport {
-    private readonly IEnumerable<TimeLog> logs;
-    private readonly Dictionary<int, string> nameMap;
-    private readonly DateTime startDate;
+    #region Initialization
 
     public TimeReport(IEnumerable<TimeLog> timeLogs, DateTime startDate, Dictionary<int, string> nameMap) {
         this.logs = timeLogs;
         this.startDate = startDate;
         this.nameMap = nameMap;
     }
+
+    #endregion
+
+    #region Member Variables
+
+    private readonly IEnumerable<TimeLog> logs;
+    private readonly Dictionary<int, string> nameMap;
+    private readonly DateTime startDate;
+
+    #endregion
+
+    #region View Properties
 
     [NotMapped]
     public string ReportTitle {
@@ -41,13 +51,47 @@ public class TimeReport {
         }
     }
 
+    [NotMapped]
+    public Dictionary<string, TimeSpan> IndividualStats {
+        get {
+            Dictionary<int, TimeSpan> totalTime = TotalTimeByMember();
+            Dictionary<string, TimeSpan> results = new();
+
+            foreach (KeyValuePair<int, TimeSpan> kvp in totalTime) {
+                string name = this.nameMap[kvp.Key];
+                results.Add(name, kvp.Value);
+            }
+
+            return results;
+        }
+    }
+
+    [NotMapped]
+    public int IndividualTimeGoal {
+        get { return 12; }
+    }
+
+    [NotMapped]
+    public TimeSpan TeamStats {
+        get { return TotalTimeByTeam(); }
+    }
+
+    [NotMapped]
+    public int TeamTimeGoal {
+        get { return this.IndividualTimeGoal * 4; }
+    }
+
+    #endregion
+
     #region Private Helper Methods
-    
+
     /// <summary>
-    /// Group all logs together by user, and sum the time logged.
+    ///     Group all logs together by user, and sum the time logged.
     /// </summary>
-    /// <returns>A Dictionary, with the keys being UserIDs and values
-    /// being sum of time logged by the user.</returns>
+    /// <returns>
+    ///     A Dictionary, with the keys being UserIDs and values
+    ///     being sum of time logged by the user.
+    /// </returns>
     private Dictionary<int, TimeSpan> TotalTimeByMember() {
         Dictionary<int, TimeSpan> byMember = new();
         foreach (TimeLog log in this.logs) {
@@ -69,7 +113,7 @@ public class TimeReport {
     }
 
     /// <summary>
-    /// Sum all time logged by the team.
+    ///     Sum all time logged by the team.
     /// </summary>
     /// <returns>A TimeSpan object representing the sum of all logged time.</returns>
     private TimeSpan TotalTimeByTeam() {
