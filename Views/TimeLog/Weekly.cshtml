@@ -1,0 +1,27 @@
+﻿@using ModernyzeWebsite.Models.TimeLog
+@model IEnumerable<ModernyzeWebsite.Models.TimeLog.TimeLogViewModel>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            Time Logged
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (TimeLogViewModel item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReadableTimeLogged)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,17 @@
+.vs/
+[Bb]in
+[Oo]bj
+[Dd]ebug
+[Rr]elease
+appsettings.json
+.vscode/
+.DS_Store
+*.dbmdl
+
+*.jfm
+
+appsettings.Development.json
+
+appsettings.Production.json
+
+*.user
