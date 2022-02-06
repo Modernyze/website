@@ -43,7 +43,6 @@ body {
 #timeCard {
     min-height: 200px;
 }
-
 /* AJAX Loader animation */
 .loading {
     position: absolute;
