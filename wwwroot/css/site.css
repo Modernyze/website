@@ -18,9 +18,9 @@ body {
 }
 
 .btn-modernyze {
-    background-color: orangered;
-    border-color: orangered;
-    color: cornsilk;
+    background-color: orangered !important;
+    border-color: orangered !important;
+    color: cornsilk !important;
     font-family: system-ui, sans-serif;
     margin: 5px 0px 5px 0px;
 }
