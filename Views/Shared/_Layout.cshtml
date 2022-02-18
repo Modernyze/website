@@ -6,67 +6,72 @@
     <title>@ViewData["Title"] - Team Modernyze</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+     <link rel="stylesheet" href="~/css/bootstrap-unlit.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ModernyzeWebsite.styles.css" asp-append-version="true" />
 </head>
 <body>
 @using Microsoft.AspNetCore.Http;
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand text-light" asp-area="" asp-controller="Home" asp-action="Index">Team Modernyze</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
+    <header>
+        <meta name="color-scheme" content="dark light">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">Team Modernyze</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
 
-                    <!-- Place any admin-restriced items here -->
-                    @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
+                        <!-- Place any admin-restriced items here -->
+                        @if (!string.IsNullOrEmpty(Context.Session.GetString("HighestPermission"))) {
                         if (Context.Session.GetString("HighestPermission").Equals("Administrator")) {
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Admin">Admin Panel</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Admin">Admin Panel</a>
+                        </li>
                         }
                     }
 
-                    <!-- The following nav items can be used by any user. -->
-                    <li class="nav-item">
-                        <a class="nav-link text-light" asp-area="" asp-controller="FourUp" asp-action="Index">Four-Ups</a>
-                    </li>
-
-                    <!-- Only show the following nodes if the user is not logged in. -->
-                    @if (string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
+                        <!-- The following nav items can be used by any user. -->
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Register">Register</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="FourUp" asp-action="Index">Four-Ups</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Login">Login</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="TeamDashboard" asp-action="Index">Team Dashboard</a>
+                        </li>
+
+                        <!-- Only show the following nodes if the user is not logged in. -->
+                        @if (string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Register">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Login">Login</a>
                         </li>
                     }
 
-                    <!-- Only place nav items beyond this point if they are used by a logged in user. -->
-                    @if (!string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
+                        <!-- Only place nav items beyond this point if they are used by a logged in user. -->
+                        @if (!string.IsNullOrEmpty(Context.Session.GetString("FullName"))) {
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="TimeLog" asp-action="Index">Time Logging</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="TimeLog" asp-action="Index">Time Logging</a>
                         </li>
-                        <!-- The Logout link should remain last in the list. This will keep the link farthest to the right on the web page. -->
+ <!-- The Logout link should remain last in the list. This will keep the link farthest to the right on the web page. -->
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
                         </li>
                     }
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
+<footer class="border-top flex-wrap bottom-0 align-items-center text-muted">
     <div class="container">
         &copy; 2022 - Team Modernyze
     </div>
