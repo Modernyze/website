@@ -15,3 +15,5 @@ appsettings.Development.json
 appsettings.Production.json
 
 *.user
+
+.idea
