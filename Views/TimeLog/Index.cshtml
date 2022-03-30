@@ -12,7 +12,21 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        Punch In / Punch Out
+                        <div class="row">
+                            <div class="col-md-6">
+                                Punch In / Punch Out
+                            </div>
+                            <div class="col-md-6">
+                                <div class="punched-in" style="display: none;">
+                                    <i class="fa-solid fa-calendar-check" style="color: green;"></i>
+                                    Currently Punched In
+                                </div>
+                                <div class="punched-out" style="display: none;">
+                                    <i class="fa-solid fa-calendar-xmark" style="color: indianred;"></i>
+                                    Currently Punched Out
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage)) {
@@ -100,6 +114,9 @@
             const $punchStatus = $('#punch-status');
             const $punchBtn = $('.punchBtn');
 
+            const $punchedInStatus = $('.punched-in');
+            const $punchedOutStatus = $('.punched-out');
+
             const $reportWeek = $('#weekSelect');
             const $hiddenYear = $('#year');
             const $hiddenWeek = $('#week');
@@ -113,6 +130,28 @@
             const $minutesInput = $('#minutesInput');
             const $minutesWarning = $('#minutesWarning');
             const maxMinutes = 59;
+
+            // When the page loads, determine if we are punched in.
+            UpdatePunchStatus();
+            
+            function UpdatePunchStatus() {
+                $.ajax({
+                    type: 'GET',
+                    url: 'TimeLog/IsPunchedIn',
+                    success: function(response) {
+                        if (response.success) {
+                            if (response.punchedIn) {
+                                $punchedOutStatus.hide();
+                                $punchedInStatus.show();
+                                return;
+                            }
+                            $punchedInStatus.hide();
+                            $punchedOutStatus.show();
+                            return;
+                        }
+                    }
+                });
+            }
 
             // Try to keep the user input within range.
             $hoursInput.on('change',
@@ -190,6 +229,7 @@
                         },
                         complete: () => {
                             $(this).attr('disabled', false);
+                            UpdatePunchStatus();
                         }
                     });
                 });
@@ -223,8 +263,9 @@
                 element.children('span').html(message);
                 element.removeClass('hidden');
                 setTimeout(function() {
-                    element.addClass('hidden');
-                }, 5000);
+                        element.addClass('hidden');
+                    },
+                    5000);
             }
         });
     </script>
