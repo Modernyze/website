@@ -1,8 +1,12 @@
-﻿using System.Globalization;
+﻿#region
+
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using ModernyzeWebsite.Data;
 using ModernyzeWebsite.Models.TimeLog;
 using ModernyzeWebsite.Models.User;
+
+#endregion
 
 namespace ModernyzeWebsite.Controllers;
 
@@ -150,6 +154,55 @@ public class TimeLogController : Controller {
         return Json(new {
             success = save.Result == 1,
             responseText = save.Result == 1 ? "Success" : "There was a problem recording the meeting."
+        });
+    }
+
+    // GET: Is Current User Punched In
+    [HttpGet]
+    public IActionResult IsPunchedIn() {
+        // If the session doesn't contain a UserId variable, the current user isn't logged in.
+        if (string.IsNullOrEmpty(this.HttpContext.Session.GetString("UserId"))) {
+            return Json(new {success = false, responseText = "You must be logged in to punch in or out."});
+        }
+
+        int userID = int.Parse(this.HttpContext.Session.GetString("UserId"));
+        UserAccount user = GetUserAccountByID(userID);
+        // If we don't have an account for a given ID, there was a database
+        // error or the current user was able to inject the UserId variable.
+        if (user == null) {
+            return Json(new {
+                success = false,
+                responseText = "An error occurred when trying to determine the most recent punch status."
+            });
+        }
+
+        TimeLog mostRecent;
+        try {
+            mostRecent = this.db.TimeLog.OrderByDescending(t => t.PunchInTime).First(t => t.UserId == user.Id);
+        }
+        catch (Exception) {
+            return Json(new {
+                success = false,
+                responseText = "An error occured when trying to determine the most recent punch status."
+            });
+        }
+
+        // If we punched in without punching out...
+        if (mostRecent.PunchOutTime == null || mostRecent.PunchOutTime.Value == DateTime.MinValue) {
+            // Check if the last punch in was more than 12 hours ago
+            DateTime punchIn = mostRecent.PunchInTime;
+            DateTime now = DateTime.Now;
+            TimeSpan diff = now - punchIn;
+            bool currentlyPunchedIn = diff.TotalHours < 12;
+            return Json(new {
+                success = true,
+                punchedIn = currentlyPunchedIn
+            });
+        }
+
+        return Json(new {
+            success = true,
+            punchedIn = false
         });
     }
 
